@@ -1,10 +1,11 @@
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Dict, Any, Optional
 from datetime import datetime
 import json
-import os
+from pathlib import Path
 
 app = FastAPI()
 
@@ -16,6 +17,15 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Get the directory of the current file
+THIS_DIR = Path(__file__).parent.resolve()
+
+# Resolve the path to the static directory
+STATIC_DIR = THIS_DIR / "static"
+
+# Serve static files
+app.mount("/", StaticFiles(directory=str(STATIC_DIR), html=True), name="static")
 
 class StackInfo(BaseModel):
     name: str

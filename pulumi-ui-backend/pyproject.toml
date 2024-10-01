@@ -13,8 +13,6 @@ dependencies = [
     "fastapi",
     "uvicorn[standard]",
 ]
-classifiers = ["Programming Language :: Python :: 3"]
-keywords = ["one", "two"]
 
 # version will be derived dynamically from version.txt via setuptools
 dynamic = ["version"]
@@ -45,58 +43,16 @@ static-code-qa = [
 dev = ["pulumi-ui[test,release,static-code-qa]"]
 
 [build-system]
-# Minimum requirements for the build system to execute.
 requires = ["setuptools>=61.0.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 # include more than only .py files in the distribution package (wheel)
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["pulumi_ui*"]
+
 [tool.setuptools.package-data]
-pulumi_ui = ["*.json"]
+"pulumi_ui" = ["static/**/*"]
 
-
-##############################
-# --- Code Quality Tools --- #
-##############################
-
-[tool.pytest.ini_options]
-markers = ["slow: marks tests as slow (deselect with '-m \"not slow\"')"]
-
-[tool.black]
-line-length = 119
-# regular expression ignoring multiple patterns separated by '|' and newlines
-exclude = '''
-/(
-    \.venv
-  | venv
-)/
-'''
-
-[tool.flake8]
-docstring-convention = "all"
-ignore = ["D107", "D212", "E501", "W503", "W605", "D203", "D100"]
-exclude = ["venv"]
-max-line-length = 119
-
-# radon
-radon-max-cc = 10
-
-[tool.isort]
-profile = "black"
-multi_line_output = "VERTICAL_HANGING_INDENT"
-force_grid_wrap = 2
-line_length = 119
-
-[tool.pylint."messages control"]
-disable = [
-    "line-too-long",
-    "trailing-whitespace",
-    "missing-function-docstring",
-    "consider-using-f-string",
-    "import-error",
-    "too-few-public-methods",
-    "redefined-outer-name",
-]
-
-# Add this section to specify the entry point
 [project.scripts]
-pulumi-ui = "pulumi_ui.main:app"
+pulumi-ui = "pulumi_ui.cli:main"

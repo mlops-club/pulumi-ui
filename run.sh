@@ -51,8 +51,26 @@ function build:frontend {
 }
 
 function build {
-    build:backend
-    build:frontend
+    # Build frontend using Docker
+    docker build -t pulumi-ui-frontend:latest -f "$FRONTEND_DIR/Dockerfile" "$FRONTEND_DIR"
+    
+    # Copy built files from the Docker image to the backend static folder
+    mkdir -p "$BACKEND_DIR/src/pulumi_ui/static"
+    docker run --rm -v "$BACKEND_DIR/src/pulumi_ui/static:/output" pulumi-ui-frontend:latest sh -c "cp -r /app/dist/* /output/"
+
+    # Build backend wheel using Docker
+    docker run --rm \
+        -v "$BACKEND_DIR:/app" \
+        -v "$HOME/.cache/pip:/root/.cache/pip" \
+        -w /app \
+        --platform linux/amd64 \
+        python:3.11-bookworm \
+        sh -c "
+            set -ex
+            pip install --upgrade pip
+            pip install build
+            python -m build --wheel
+        "
 }
 
 function lint:backend {
@@ -94,11 +112,46 @@ function clean {
     clean:frontend
 }
 
-# print all functions in this file
+# Add these functions to the run.sh file
+
+function ensure_pipx {
+    if ! command -v pipx &> /dev/null; then
+        echo "pipx not found. Installing pipx..."
+        python3 -m pip install pipx
+        python3 -m pipx ensurepath
+    fi
+}
+
+function run_built_wheel {
+    set -x
+    ensure_pipx
+
+    # Find the latest wheel file
+    WHEEL_FILE=$(ls -t "$BACKEND_DIR/dist/"*.whl | head -n1)
+
+    if [ -z "$WHEEL_FILE" ]; then
+        echo "No wheel file found. Please build the project first."
+        exit 1
+    fi
+
+    echo "Installing and running $WHEEL_FILE"
+    pipx install --force "$WHEEL_FILE"
+    
+    # Print debug information
+    echo "Contents of the installed package:"
+    pipx runpip pulumi-ui list
+
+    echo "Running pulumi-ui with debug output:"
+    pipx run --spec "$WHEEL_FILE" pulumi-ui
+}
+
+# ... (keep the existing functions)
+
+# Modify the help function to include the new function
 function help {
     echo "$0 <task> <args>"
     echo "Tasks:"
-    compgen -A function | cat -n
+    compgen -A function | grep -v "^_" | sort | cat -n
 }
 
 TIMEFORMAT="Task completed in %3lR"

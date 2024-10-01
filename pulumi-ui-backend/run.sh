@@ -38,7 +38,7 @@ function test:quick {
 
 # execute tests against the installed package; assumes the wheel is already installed
 function test:ci {
-    INSTALLED_PKG_DIR="$(python -c 'import pyprojen; print(pyprojen.__path__[0])')"
+    INSTALLED_PKG_DIR="$(python -c 'import pulumi_ui; print(pulumi_ui.__path__[0])')"
     # in CI, we must calculate the coverage for the installed package, not the src/ folder
     COVERAGE_DIR="$INSTALLED_PKG_DIR" run-tests
 }

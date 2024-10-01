@@ -21,4 +21,7 @@ clean:
 help:
 	bash run.sh help
 
-.PHONY: install dev build lint test clean help
+run-wheel:
+	bash run.sh run_built_wheel
+
+.PHONY: install dev build lint test clean help run-wheel

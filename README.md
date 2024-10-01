@@ -130,3 +130,13 @@ This will start the backend on `http://localhost:8000` and the frontend on `http
 - Pulumi Playground:
   - Source code: `pulumi-playground/src/pulumi_playground/pulumi_app/`
   - Run Pulumi commands: `cd pulumi-playground && make pulumi-up`
+
+## Building the Application
+
+To build the entire application (frontend and backend):
+
+```
+make build
+```
+
+This will build both the frontend and backend, resulting in a fully built application.
