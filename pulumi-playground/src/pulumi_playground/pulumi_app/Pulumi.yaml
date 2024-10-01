@@ -1,0 +1,4 @@
+name: pulumi-ui-s3
+runtime:
+  name: python
+description: A simple S3 bucket created with Pulumi

@@ -1,0 +1,26 @@
+{
+    "kind": "update",
+    "startTime": 1727768680,
+    "message": "putup vite and fastapi project",
+    "environment": {
+        "exec.kind": "cli",
+        "git.author": "phitoduck",
+        "git.author.email": "eric.riddoch@gmail.com",
+        "git.committer": "phitoduck",
+        "git.committer.email": "eric.riddoch@gmail.com",
+        "git.dirty": "true",
+        "git.head": "5fff295a596f07ef0036e7306c3ffc54027ac853",
+        "git.headName": "refs/heads/main",
+        "pulumi.arch": "arm64",
+        "pulumi.os": "darwin",
+        "pulumi.version": "v3.134.1",
+        "updatePlan": "false"
+    },
+    "config": {},
+    "version": 0,
+    "result": "succeeded",
+    "endTime": 1727768685,
+    "resourceChanges": {
+        "create": 2
+    }
+}

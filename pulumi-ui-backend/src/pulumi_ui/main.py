@@ -1,5 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+from typing import List, Dict, Any, Optional
+from datetime import datetime
+import json
+import os
 
 app = FastAPI()
 
@@ -12,11 +17,44 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# API routes
-@app.get("/api/hello")
-async def hello():
-    return {"message": "Hello from FastAPI!"}
+class StackInfo(BaseModel):
+    name: str
+    created_at: datetime
 
-# Add more API routes as needed
+class Resource(BaseModel):
+    urn: str
+    type: str
+    custom: bool
+    id: Optional[str] = None
+    parent: Optional[str] = None
+    provider: Optional[str] = None
+    inputs: Optional[Dict[str, Any]] = None
+    outputs: Optional[Dict[str, Any]] = None
+    created: Optional[datetime] = None
+    modified: Optional[datetime] = None
 
-# Remove the if __name__ == "__main__" block, as we'll run it differently for development
+class Stack(BaseModel):
+    name: str
+    resources: List[Resource]
+    outputs: Dict[str, Any]
+
+@app.get("/api/stacks", response_model=List[StackInfo])
+async def get_stacks():
+    # For now, we'll return a hardcoded list of stacks
+    return [
+        StackInfo(name="hello", created_at=datetime.now()),
+        StackInfo(name="dev", created_at=datetime.now()),
+    ]
+
+@app.get("/api/stacks/{stack_name}", response_model=Stack)
+async def get_stack(stack_name: str):
+    # For now, we'll always return the hello.json stack
+    stack_path = os.path.join(os.path.dirname(__file__), "../../../pulumi-playground/.pulumi-state/.pulumi/stacks/pulumi-ui-s3/hello.json")
+    with open(stack_path, 'r') as f:
+        data = json.load(f)
+    
+    resources = [Resource(**r) for r in data['checkpoint']['latest']['resources']]
+    outputs = data['checkpoint']['latest']['resources'][0]['outputs']
+    
+    return Stack(name=stack_name, resources=resources, outputs=outputs)
+
