@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from fastapi.responses import RedirectResponse
 from typing import List, Dict, Any, Optional
 from datetime import datetime
 import json
@@ -49,9 +50,6 @@ class Stack(BaseModel):
     resources: List[Resource]
     outputs: Dict[str, Any]
 
-@app.get("/")
-async def root():
-    return {"message": "Welcome to Pulumi UI API"}
 
 @app.get("/api/stacks", response_model=List[StackInfo])
 async def get_stacks():
@@ -72,4 +70,9 @@ async def get_stack(stack_name: str):
     outputs = data['checkpoint']['latest']['resources'][0]['outputs']
     
     return Stack(name=stack_name, resources=resources, outputs=outputs)
+
+# redirect / to /static/index.html
+@app.get("/")
+async def root():
+    return RedirectResponse("/static/index.html")
 

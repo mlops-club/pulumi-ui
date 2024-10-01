@@ -2,6 +2,12 @@
 
 Pulumi UI is a web-based application for visualizing and managing self-hosted Pulumi state. It consists of a FastAPI backend and a React frontend, allowing users to view and interact with their Pulumi stacks and resources.
 
+## Quickstart
+
+```bash
+make clean build run-wheel
+```
+
 ## Project Structure
 
 The project is organized into three main directories:

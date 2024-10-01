@@ -14,13 +14,14 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
-    assetsDir: 'static',
+    assetsDir: 'static/static',
     rollupOptions: {
       output: {
-        entryFileNames: 'static/[name].js',
-        chunkFileNames: 'static/[name].js',
-        assetFileNames: 'static/[name].[ext]'
+        entryFileNames: 'static/static/[name]-[hash].js',
+        chunkFileNames: 'static/static/[name]-[hash].js',
+        assetFileNames: 'static/static/[name]-[hash].[ext]'
       }
     }
-  }
+  },
+  base: '/static/'
 })

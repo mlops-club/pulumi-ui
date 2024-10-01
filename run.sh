@@ -123,27 +123,14 @@ function ensure_pipx {
 }
 
 function run_built_wheel {
-    set -x
-    ensure_pipx
-
-    # Find the latest wheel file
     WHEEL_FILE=$(ls -t "$BACKEND_DIR/dist/"*.whl | head -n1)
 
-    if [ -z "$WHEEL_FILE" ]; then
-        echo "No wheel file found. Please build the project first."
-        exit 1
-    fi
-
-    echo "Installing and running $WHEEL_FILE"
-    pipx install --force "$WHEEL_FILE"
-    
-    echo "Installed package contents:"
-    pipx runpip pulumi-ui list
-
-    echo "Running pulumi-ui with debug output:"
-    PYTHONPATH=$(pipx runpip pulumi-ui show -f | grep Location | awk '{print $2}') \
-    PYTHONVERBOSE=1 \
-    pipx run --verbose --spec "$WHEEL_FILE" pulumi-ui
+    deactivate || true
+    rm -rf .tmp-venv || true
+    uv venv .tmp-venv
+    source .tmp-venv/bin/activate
+    uv pip install "$WHEEL_FILE"
+    .tmp-venv/bin/pulumi-ui up
 }
 
 function generate_lockfile {
