@@ -1,0 +1,102 @@
+############################
+# --- Package Settings --- #
+############################
+
+[project]
+name = "pulumi-ui"
+description = "UI for visualizing self-hosted Pulumi state."
+authors = [{ name = "<your name>", email = "some-email@gmail.com" }]
+readme = "README.md"
+requires-python = ">=3.7"
+license = { text = "MIT" }
+dependencies = [
+    "fastapi",
+    "uvicorn[standard]",
+]
+classifiers = ["Programming Language :: Python :: 3"]
+keywords = ["one", "two"]
+
+# version will be derived dynamically from version.txt via setuptools
+dynamic = ["version"]
+
+# docs: https://setuptools.pypa.io/en/latest/userguide/pyproject_config.html#dynamic-metadata
+[tool.setuptools.dynamic]
+version = { file = "version.txt" }
+
+# optional dependencies can be installed with square brackets, e.g. `pip install my-package[test,static-code-qa]`
+[project.optional-dependencies]
+test = ["pytest", "pytest-cov"]
+release = ["build", "twine"]
+static-code-qa = [
+    "pre-commit",
+    "pylint",
+    "black",
+    "isort",
+    "flake8",
+    "flake8-docstrings",
+    "Flake8-pyproject",
+    "radon",
+]
+# Installing dev depenendencies in your virtual env makes it so that during development VS Code can
+# - surface linting errors
+# - automatically apply formatting
+# - show enhanced autocompletion for stubs libraries
+# See .vscode/settings.json to see how VS Code is configured to use these tools
+dev = ["pulumi-ui[test,release,static-code-qa]"]
+
+[build-system]
+# Minimum requirements for the build system to execute.
+requires = ["setuptools>=61.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+# include more than only .py files in the distribution package (wheel)
+[tool.setuptools.package-data]
+pulumi_ui = ["*.json"]
+
+
+##############################
+# --- Code Quality Tools --- #
+##############################
+
+[tool.pytest.ini_options]
+markers = ["slow: marks tests as slow (deselect with '-m \"not slow\"')"]
+
+[tool.black]
+line-length = 119
+# regular expression ignoring multiple patterns separated by '|' and newlines
+exclude = '''
+/(
+    \.venv
+  | venv
+)/
+'''
+
+[tool.flake8]
+docstring-convention = "all"
+ignore = ["D107", "D212", "E501", "W503", "W605", "D203", "D100"]
+exclude = ["venv"]
+max-line-length = 119
+
+# radon
+radon-max-cc = 10
+
+[tool.isort]
+profile = "black"
+multi_line_output = "VERTICAL_HANGING_INDENT"
+force_grid_wrap = 2
+line_length = 119
+
+[tool.pylint."messages control"]
+disable = [
+    "line-too-long",
+    "trailing-whitespace",
+    "missing-function-docstring",
+    "consider-using-f-string",
+    "import-error",
+    "too-few-public-methods",
+    "redefined-outer-name",
+]
+
+# Add this section to specify the entry point
+[project.scripts]
+pulumi-ui = "pulumi_ui.main:app"

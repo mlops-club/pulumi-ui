@@ -1,0 +1,39 @@
+{
+    "recommendations": [
+        // official python extensiosn
+        "ms-python.python",
+        "ms-python.black-formatter",
+        "ms-python.pylint",
+        "ms-python.flake8",
+        "ms-python.vscode-pylance",
+        "ms-python.isort",
+        "ms-python.mypy-type-checker",
+        // official extension pack for jupyter notebooks
+        "ms-toolsai.jupyter",
+        // official extension pack for SSH tunneling, WSL, dev containers, etc..
+        "ms-vscode-remote.vscode-remote-extensionpack",
+        // google-docs-like real-time collaboration
+        "ms-vsliveshare.vsliveshare",
+        // file support: justfile, markdown/mermaid, toml, yaml, jinja
+        "yzhang.markdown-all-in-one",
+        "bierner.markdown-mermaid",
+        "tamasfe.even-better-toml",
+        "redhat.vscode-yaml",
+        "samuelcolvin.jinjahtml",
+        // more detailed file icons in sidebar
+        "PKief.material-icon-theme",
+        // tools: git, docker
+        "eamodio.gitlens",
+        "ms-azuretools.vscode-docker",
+        // GitHub
+        "github.vscode-github-actions",
+        "GitHub.copilot",
+        "GitHub.copilot-labs",
+        // Ctrl+Alt+V / Cmd+Alt+V paste image from clipboard into markdown files
+        "mushan.vscode-paste-image",
+        // autocompletion for file paths
+        "christian-kohler.path-intellisense",
+        // jump to definition of pytest fixtures, e.g. with Ctrl+Click / Cmd+Click
+        "nickmillerdev.pytest-fixtures",
+    ]
+}
