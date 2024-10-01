@@ -1,4 +1,7 @@
 # Python
+*venv
+*.venv
+*.env
 __pycache__/
 *.py[cod]
 *.so

@@ -5,10 +5,10 @@ WORKDIR /app
 # Install pnpm
 RUN npm install -g pnpm
 
-# Copy package.json and pnpm-lock.yaml (if you have one)
-COPY package.json pnpm-lock.yaml* ./
+# Copy package.json, pnpm-lock.yaml, and vite.config.ts
+COPY package.json pnpm-lock.yaml vite.config.ts ./
 
-# Install dependencies
+# Install dependencies using the lockfile
 RUN pnpm install --frozen-lockfile
 
 # Copy the rest of the application code

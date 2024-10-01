@@ -137,12 +137,17 @@ function run_built_wheel {
     echo "Installing and running $WHEEL_FILE"
     pipx install --force "$WHEEL_FILE"
     
-    # Print debug information
-    echo "Contents of the installed package:"
+    echo "Installed package contents:"
     pipx runpip pulumi-ui list
 
     echo "Running pulumi-ui with debug output:"
-    pipx run --spec "$WHEEL_FILE" pulumi-ui
+    PYTHONPATH=$(pipx runpip pulumi-ui show -f | grep Location | awk '{print $2}') \
+    PYTHONVERBOSE=1 \
+    pipx run --verbose --spec "$WHEEL_FILE" pulumi-ui
+}
+
+function generate_lockfile {
+    docker run --rm -v "$FRONTEND_DIR:/app" -w /app --platform linux/arm64 node:22-bookworm-slim sh -c "npm install -g pnpm && pnpm install --lockfile-only"
 }
 
 # ... (keep the existing functions)

@@ -6,6 +6,7 @@ from typing import List, Dict, Any, Optional
 from datetime import datetime
 import json
 from pathlib import Path
+import os
 
 app = FastAPI()
 
@@ -24,8 +25,8 @@ THIS_DIR = Path(__file__).parent.resolve()
 # Resolve the path to the static directory
 STATIC_DIR = THIS_DIR / "static"
 
-# Serve static files
-app.mount("/", StaticFiles(directory=str(STATIC_DIR), html=True), name="static")
+# Serve static files at /static instead of /
+app.mount("/static", StaticFiles(directory=str(STATIC_DIR), html=True), name="static")
 
 class StackInfo(BaseModel):
     name: str
@@ -47,6 +48,10 @@ class Stack(BaseModel):
     name: str
     resources: List[Resource]
     outputs: Dict[str, Any]
+
+@app.get("/")
+async def root():
+    return {"message": "Welcome to Pulumi UI API"}
 
 @app.get("/api/stacks", response_model=List[StackInfo])
 async def get_stacks():
