@@ -16,11 +16,7 @@ def get_path(uri: str) -> Path | CloudPath:
 def list_projects(state_uri: str) -> List[Project]:
     base_path: Path | CloudPath = get_path(state_uri)
     stacks_dir = base_path / ".pulumi/stacks/"
-
-    if isinstance(base_path, CloudPath):
-        stack_paths = list(stacks_dir.rglob("*.json"))
-    else:
-        stack_paths = list(stacks_dir.glob("**/*.json"))
+    stack_paths = list(stacks_dir.glob("**/*.json"))
 
     projects = defaultdict(list)
 
