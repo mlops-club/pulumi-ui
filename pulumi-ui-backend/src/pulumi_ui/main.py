@@ -1,15 +1,10 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
 from fastapi.responses import RedirectResponse
-from typing import List, Dict, Any, Optional
-from datetime import datetime
-import json
 from pathlib import Path
-import os
 from pulumi_ui.routes import ROUTER
-
+from pulumi_ui.settings import Settings
 
 # Get the directory of the current file
 THIS_DIR = Path(__file__).parent.resolve()
@@ -18,8 +13,11 @@ THIS_DIR = Path(__file__).parent.resolve()
 STATIC_DIR = THIS_DIR / "static"
 
 
-def create_app():
-    app = FastAPI()
+def create_app(settings: Settings = None, debug: bool = False):
+    settings = settings or Settings()
+
+    app = FastAPI(debug=debug)
+    app.state.settings = settings
 
     # Enable CORS
     app.add_middleware(
@@ -32,11 +30,16 @@ def create_app():
 
     app.include_router(ROUTER)
 
-    app.mount("/static", StaticFiles(directory=str(STATIC_DIR), html=True), name="static")
+    if debug:
+        # Use the React app's build directory directly in debug mode
+        react_build_dir = THIS_DIR.parent.parent.parent / "pulumi-ui-frontend" / "dist"
+        app.mount("/", StaticFiles(directory=str(react_build_dir), html=True), name="static")
+    else:
+        app.mount("/", StaticFiles(directory=str(STATIC_DIR), html=True), name="static")
    
-   # redirect / to /static/index.html
+    # redirect / to /index.html
     @app.get("/")
     async def root():
-        return RedirectResponse("/static/index.html")
+        return RedirectResponse("/index.html")
 
     return app

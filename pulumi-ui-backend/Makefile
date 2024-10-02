@@ -10,6 +10,12 @@ build:
 clean:
 	bash run.sh clean
 
+dev:
+	bash run.sh dev:backend
+
+dev-aws:
+	bash run.sh dev:backend-aws
+
 help:
 	bash run.sh help
 
@@ -48,3 +54,5 @@ test:
 
 test-wheel-locally:
 	bash run.sh test:wheel-locally
+
+.PHONY: build clean dev dev-aws help install lint lint-ci publish-prod publish-test release-prod release-test serve-coverage-report test-ci test-quick test test-wheel-locally

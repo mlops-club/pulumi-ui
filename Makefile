@@ -6,6 +6,9 @@ install:
 dev:
 	bash run.sh dev
 
+dev-aws:
+	bash run.sh dev-aws
+
 build:
 	bash run.sh build
 
@@ -24,4 +27,4 @@ help:
 run-wheel:
 	bash run.sh run_built_wheel
 
-.PHONY: install dev build lint test clean help run-wheel
+.PHONY: install dev dev-aws build lint test clean help run-wheel

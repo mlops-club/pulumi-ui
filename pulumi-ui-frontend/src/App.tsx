@@ -1,31 +1,44 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { ReactFlow, Node, Edge, Controls, Background } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { StackInfo, Stack, Resource } from './types';
+import { Project, Stack, Resource } from './types';
 
 function App() {
-  const [stacks, setStacks] = useState<StackInfo[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
   const [selectedStack, setSelectedStack] = useState<Stack | null>(null);
   const [nodes, setNodes] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
 
   useEffect(() => {
-    fetchStacks();
+    fetchProjects();
   }, []);
 
-  const fetchStacks = async () => {
-    const response = await fetch('http://localhost:8000/api/stacks');
-    const data = await response.json();
-    setStacks(data);
+  const fetchProjects = async () => {
+    try {
+      const response = await fetch('/api/projects');
+      if (!response.ok) {
+        throw new Error('Failed to fetch projects');
+      }
+      const data = await response.json();
+      setProjects(data);
+    } catch (error) {
+      console.error('Error fetching projects:', error);
+    }
   };
 
-  const fetchStack = async (stackName: string) => {
-    const response = await fetch(`http://localhost:8000/api/stacks/${stackName}`);
-    const data = await response.json();
-    setSelectedStack(data);
-    createGraph(data.resources);
+  const fetchStack = async (projectName: string, stackName: string) => {
+    try {
+      const response = await fetch(`/api/projects/${projectName}/stacks/${stackName}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch stack');
+      }
+      const data = await response.json();
+      setSelectedStack(data);
+      createGraph(data.resources);
+    } catch (error) {
+      console.error('Error fetching stack:', error);
+    }
   };
-
 
   const createGraph = useCallback((resources: Resource[]) => {
     const newNodes: Node[] = resources.map((resource, index) => ({
@@ -51,15 +64,20 @@ function App() {
 
   return (
     <div className="App">
-      <h1>Pulumi Stacks</h1>
-      <button onClick={fetchStacks}>Refresh Stacks</button>
-      <ul>
-        {stacks.map((stack) => (
-          <li key={stack.name} onClick={() => fetchStack(stack.name)}>
-            {stack.name} (Created: {new Date(stack.created_at).toLocaleString()})
-          </li>
-        ))}
-      </ul>
+      <h1>Pulumi Projects</h1>
+      <button onClick={fetchProjects}>Refresh Projects</button>
+      {projects.map((project) => (
+        <div key={project.name}>
+          <h2>{project.name}</h2>
+          <ul>
+            {project.stacks.map((stack) => (
+              <li key={stack.name} onClick={() => fetchStack(project.name, stack.name)}>
+                {stack.name} (Last Updated: {new Date(stack.last_updated).toLocaleString()})
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
       {selectedStack && (
         <div style={{ height: '600px', width: '100%' }}>
           <ReactFlow

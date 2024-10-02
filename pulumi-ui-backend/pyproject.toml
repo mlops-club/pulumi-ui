@@ -15,6 +15,7 @@ dependencies = [
     "uvicorn[standard]",
     "typer",
     "boto3",
+    "cloudpathlib[s3,gs,azure]",
 ]
 
 # version will be derived dynamically from version.txt via setuptools
@@ -55,7 +56,7 @@ where = ["src"]
 include = ["pulumi_ui*"]
 
 [tool.setuptools.package-data]
-"pulumi_ui" = ["static/**/*", "hello.json"]
+"pulumi_ui" = ["static/**/*"]
 
 [project.scripts]
 pulumi-ui = "pulumi_ui.cli:main"

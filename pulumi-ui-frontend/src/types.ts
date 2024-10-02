@@ -1,6 +1,11 @@
 export interface StackInfo {
   name: string;
-  created_at: string;
+  last_updated: string;
+}
+
+export interface Project {
+  name: string;  // Changed from project_name to name
+  stacks: StackInfo[];
 }
 
 export interface Resource {

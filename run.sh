@@ -28,17 +28,28 @@ function install {
 }
 
 function dev:backend {
-    (cd "$BACKEND_DIR" && uvicorn pulumi_ui.main:app --reload --host 0.0.0.0 --port 8000)
+    (cd "$BACKEND_DIR" && python -m pulumi_ui.cli up --debug)
 }
 
 function dev:frontend {
-    (cd "$FRONTEND_DIR" && pnpm run dev)
+    (cd "$FRONTEND_DIR" && npm run build -- --watch)
 }
 
 function dev {
     trap 'kill 0' SIGINT
-    dev:backend &
     dev:frontend &
+    dev:backend &
+    wait
+}
+
+function dev:backend-aws {
+    (cd "$BACKEND_DIR" && AWS_PROFILE="pulumi-ui" AWS_REGION="us-west-2" python -m pulumi_ui.cli up --cloud-url s3://mlops-club-pulumi-state --debug)
+}
+
+function dev-aws {
+    trap 'kill 0' SIGINT
+    dev:frontend &
+    dev:backend-aws &
     wait
 }
 
@@ -51,26 +62,15 @@ function build:frontend {
 }
 
 function build {
-    # Build frontend using Docker
-    docker build -t pulumi-ui-frontend:latest -f "$FRONTEND_DIR/Dockerfile" "$FRONTEND_DIR"
+    # Build frontend
+    (cd "$FRONTEND_DIR" && npm run build)
     
-    # Copy built files from the Docker image to the backend static folder
+    # Copy built files to the backend static folder
     mkdir -p "$BACKEND_DIR/src/pulumi_ui/static"
-    docker run --rm -v "$BACKEND_DIR/src/pulumi_ui/static:/output" pulumi-ui-frontend:latest sh -c "cp -r /app/dist/* /output/"
+    cp -r "$FRONTEND_DIR/dist/"* "$BACKEND_DIR/src/pulumi_ui/static/"
 
-    # Build backend wheel using Docker
-    docker run --rm \
-        -v "$BACKEND_DIR:/app" \
-        -v "$HOME/.cache/pip:/root/.cache/pip" \
-        -w /app \
-        --platform linux/amd64 \
-        python:3.11-bookworm \
-        sh -c "
-            set -ex
-            pip install --upgrade pip
-            pip install build
-            python -m build --wheel
-        "
+    # Build backend wheel
+    (cd "$BACKEND_DIR" && python -m build --wheel)
 }
 
 function lint:backend {

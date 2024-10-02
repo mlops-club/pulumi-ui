@@ -6,7 +6,11 @@ from pydantic import BaseModel
 
 class StackInfo(BaseModel):
     name: str
-    created_at: datetime
+    last_updated: datetime
+
+class Project(BaseModel):
+    name: str  # Changed from project_name to name
+    stacks: List[StackInfo]
 
 class Resource(BaseModel):
     urn: str

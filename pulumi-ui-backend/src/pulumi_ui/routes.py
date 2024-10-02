@@ -1,31 +1,22 @@
-from fastapi import APIRouter
-
-from pulumi_ui.schemas import StackInfo, Stack, Resource
+from fastapi import APIRouter, Request
+from pulumi_ui.schemas import Stack, Project
 from typing import List
 from datetime import datetime
 import json
 from pathlib import Path
+from pulumi_ui.settings import Settings
+from pulumi_ui.pulumi_state import list_projects, get_stack
 
 THIS_DIR = Path(__file__).parent
 
 ROUTER = APIRouter()
 
-@ROUTER.get("/api/stacks", response_model=List[StackInfo])
-async def get_stacks():
-    # For now, we'll return a hardcoded list of stacks
-    return [
-        StackInfo(name="hello", created_at=datetime.now()),
-        StackInfo(name="dev", created_at=datetime.now()),
-    ]
+@ROUTER.get("/api/projects", response_model=List[Project])
+async def get_projects(request: Request):
+    settings: Settings = request.app.state.settings
+    return list_projects(settings.pulumi_cloud_url)
 
-@ROUTER.get("/api/stacks/{stack_name}", response_model=Stack)
-async def get_stack(stack_name: str):
-    # For now, we'll always return the hello.json stack
-    STACK_PATH = THIS_DIR / "hello.json"
-    with open(STACK_PATH, 'r') as f:
-        data = json.load(f)
-    
-    resources = [Resource(**r) for r in data['checkpoint']['latest']['resources']]
-    outputs = data['checkpoint']['latest']['resources'][0]['outputs']
-    
-    return Stack(name=stack_name, resources=resources, outputs=outputs)
+@ROUTER.get("/api/projects/{project_name}/stacks/{stack_name}", response_model=Stack)
+async def get_stack_details(project_name: str, stack_name: str, request: Request):
+    settings: Settings = request.app.state.settings
+    return get_stack(settings.pulumi_cloud_url, project_name, stack_name)

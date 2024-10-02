@@ -58,4 +58,4 @@ pulumi-preview:
 pulumi-destroy:
 	bash run.sh pulumi:run destroy
 
-.PHONY: pulumi-up pulumi-preview pulumi-destroy
+.PHONY: build clean help install lint lint-ci publish-prod publish-test release-prod release-test serve-coverage-report test-ci test-quick test test-wheel-locally pulumi-up pulumi-preview pulumi-destroy
