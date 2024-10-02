@@ -1,4 +1,4 @@
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
-    pulumi_cloud_url: str
+    pulumi_state_uri: str

@@ -4,8 +4,8 @@ from pulumi_ui.schemas import StackInfo, Project, Stack, Resource
 from typing import List
 import json
 
-def list_projects(cloud_url: str) -> List[Project]:
-    stacks_dir = CloudPath(cloud_url) / ".pulumi/stacks/"
+def list_projects(state_uri: str) -> List[Project]:
+    stacks_dir = CloudPath(state_uri) / ".pulumi/stacks/"
     stack_paths = list(stacks_dir.rglob("*.json"))
 
     projects = defaultdict(list)
@@ -18,8 +18,8 @@ def list_projects(cloud_url: str) -> List[Project]:
 
     return [Project(name=name, stacks=stacks) for name, stacks in projects.items()]
 
-def get_stack(cloud_url: str, project_name: str, stack_name: str) -> Stack:
-    stack_path = CloudPath(cloud_url) / f".pulumi/stacks/{project_name}/{stack_name}.json"
+def get_stack(state_uri: str, project_name: str, stack_name: str) -> Stack:
+    stack_path = CloudPath(state_uri) / f".pulumi/stacks/{project_name}/{stack_name}.json"
     stack_json = json.loads(stack_path.read_text())
     
     resources = [Resource(**r) for r in stack_json['checkpoint']['latest']['resources']]

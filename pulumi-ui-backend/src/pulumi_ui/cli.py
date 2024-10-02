@@ -10,15 +10,15 @@ cli = Typer()
 
 @cli.command()
 def up(
-    cloud_url: Optional[str] = None,
+    state_uri: Optional[str] = None,
     debug: bool = Option(False, "--debug", help="Run in debug mode")
 ):
     settings_kwargs = {}
-    if cloud_url:
-        settings_kwargs["pulumi_cloud_url"] = cloud_url
+    if state_uri:
+        settings_kwargs["pulumi_state_uri"] = state_uri
     settings = Settings(**settings_kwargs)
 
-    print(list_projects(settings.pulumi_cloud_url))
+    print(list_projects(settings.pulumi_state_uri))
 
     app = create_app(settings=settings, debug=debug)
     uvicorn.run(app, host="localhost", port=8000)

@@ -9,6 +9,7 @@ set -e
 THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 BACKEND_DIR="$THIS_DIR/pulumi-ui-backend"
 FRONTEND_DIR="$THIS_DIR/pulumi-ui-frontend"
+PLAYGROUND_DIR="$THIS_DIR/pulumi-playground"
 
 ##########################
 # --- Task Functions --- #
@@ -28,7 +29,7 @@ function install {
 }
 
 function dev:backend {
-    (cd "$BACKEND_DIR" && python -m pulumi_ui.cli up --debug)
+    (cd "$BACKEND_DIR" && python -m pulumi_ui.cli up --state-uri "file://$PLAYGROUND_DIR/pulumi-state" --debug)
 }
 
 function dev:frontend {
@@ -43,13 +44,20 @@ function dev {
 }
 
 function dev:backend-aws {
-    (cd "$BACKEND_DIR" && AWS_PROFILE="pulumi-ui" AWS_REGION="us-west-2" python -m pulumi_ui.cli up --cloud-url s3://mlops-club-pulumi-state --debug)
+    (cd "$BACKEND_DIR" && AWS_PROFILE="pulumi-ui" AWS_REGION="us-west-2" python -m pulumi_ui.cli up --state-uri s3://mlops-club-pulumi-state --debug)
 }
 
 function dev-aws {
     trap 'kill 0' SIGINT
     dev:frontend &
     dev:backend-aws &
+    wait
+}
+
+function dev-local {
+    trap 'kill 0' SIGINT
+    dev:frontend &
+    dev:backend &
     wait
 }
 
