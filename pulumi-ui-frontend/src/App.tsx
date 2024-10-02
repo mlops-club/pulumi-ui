@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { ReactFlow, Node, Edge, Controls, Background } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { Project, Stack, Resource } from './types';
@@ -20,6 +20,7 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import LayersIcon from '@mui/icons-material/Layers';
+import FolderIcon from '@mui/icons-material/Folder';
 
 const drawerWidth = 240;
 
@@ -28,17 +29,16 @@ function App() {
   const [selectedStack, setSelectedStack] = useState<Stack | null>(null);
   const [nodes, setNodes] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
-  const [drawerOpen, setDrawerOpen] = useState(true);
+  const [mainDrawerOpen, setMainDrawerOpen] = useState(true);
+  const [projectsDrawerOpen, setProjectsDrawerOpen] = useState(false);
   const [expandedProjects, setExpandedProjects] = useState<Set<string>>(new Set());
+  const projectsDrawerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    fetchProjects();
-  }, []);
-
-  useEffect(() => {
-    // Set all projects to expanded by default
-    setExpandedProjects(new Set(projects.map(p => p.name)));
-  }, [projects]);
+    if (projectsDrawerOpen) {
+      fetchProjects();
+    }
+  }, [projectsDrawerOpen]);
 
   const fetchProjects = async () => {
     try {
@@ -48,6 +48,8 @@ function App() {
       }
       const data = await response.json();
       setProjects(data);
+      // Expand all projects by default
+      setExpandedProjects(new Set(data.map((p: Project) => p.name)));
     } catch (error) {
       console.error('Error fetching projects:', error);
     }
@@ -89,8 +91,17 @@ function App() {
     setEdges(newEdges);
   }, []);
 
-  const toggleDrawer = () => {
-    setDrawerOpen(!drawerOpen);
+  const toggleMainDrawer = () => {
+    setMainDrawerOpen(!mainDrawerOpen);
+  };
+
+  const toggleProjectsDrawer = () => {
+    setProjectsDrawerOpen(!projectsDrawerOpen);
+    if (!projectsDrawerOpen) {
+      setTimeout(() => {
+        projectsDrawerRef.current?.focus();
+      }, 100);
+    }
   };
 
   const toggleProjectExpansion = (projectName: string) => {
@@ -106,17 +117,17 @@ function App() {
   };
 
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: 'flex', height: '100vh' }}>
       <CssBaseline />
       <Drawer
         variant="permanent"
         anchor="left"
-        open={drawerOpen}
+        open={mainDrawerOpen}
         sx={{
-          width: drawerOpen ? drawerWidth : 56,
+          width: mainDrawerOpen ? drawerWidth : 56,
           flexShrink: 0,
           '& .MuiDrawer-paper': {
-            width: drawerOpen ? drawerWidth : 56,
+            width: mainDrawerOpen ? drawerWidth : 56,
             boxSizing: 'border-box',
             overflowX: 'hidden',
             transition: theme => theme.transitions.create('width', {
@@ -127,69 +138,86 @@ function App() {
         }}
       >
         <List>
-          <ListItem disablePadding sx={{ justifyContent: drawerOpen ? 'flex-end' : 'center' }}>
-            <IconButton onClick={toggleDrawer}>
-              {drawerOpen ? <ChevronLeftIcon /> : <ChevronRightIcon />}
+          <ListItem disablePadding sx={{ justifyContent: mainDrawerOpen ? 'flex-end' : 'center' }}>
+            <IconButton onClick={toggleMainDrawer}>
+              {mainDrawerOpen ? <ChevronLeftIcon /> : <ChevronRightIcon />}
             </IconButton>
           </ListItem>
-          {drawerOpen && (
-            <>
-              <ListItem disablePadding>
-                <ListItemButton>
-                  <ListItemIcon>
-                    <LayersIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Stacks" />
-                </ListItemButton>
-              </ListItem>
-              {projects.map((project) => (
-                <React.Fragment key={project.name}>
-                  <ListItemButton onClick={() => toggleProjectExpansion(project.name)}>
-                    <ListItemText primary={project.name} />
-                    {expandedProjects.has(project.name) ? <ExpandLess /> : <ExpandMore />}
-                  </ListItemButton>
-                  <Collapse in={expandedProjects.has(project.name)} timeout="auto" unmountOnExit>
-                    <List component="div" disablePadding>
-                      {project.stacks.map((stack) => (
-                        <ListItemButton
-                          key={stack.name}
-                          sx={{ pl: 4 }}
-                          onClick={() => fetchStack(project.name, stack.name)}
-                        >
-                          <ListItemText primary={stack.name} secondary={new Date(stack.last_updated).toLocaleString()} />
-                        </ListItemButton>
-                      ))}
-                    </List>
-                  </Collapse>
-                </React.Fragment>
-              ))}
-            </>
-          )}
-          {!drawerOpen && (
-            <ListItem disablePadding>
-              <Tooltip title="Stacks" placement="right" arrow>
-                <ListItemButton>
-                  <ListItemIcon sx={{ minWidth: 0, justifyContent: 'center' }}>
-                    <LayersIcon />
-                  </ListItemIcon>
-                </ListItemButton>
-              </Tooltip>
-            </ListItem>
-          )}
+          <ListItem disablePadding>
+            <Tooltip title="Stacks" placement="right" arrow>
+              <ListItemButton onClick={toggleProjectsDrawer}>
+                <ListItemIcon sx={{ minWidth: 0, justifyContent: 'center' }}>
+                  <LayersIcon />
+                </ListItemIcon>
+                {mainDrawerOpen && <ListItemText primary="Stacks" sx={{ pl: 2 }} />}
+              </ListItemButton>
+            </Tooltip>
+          </ListItem>
         </List>
       </Drawer>
-      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+      <Drawer
+        variant="persistent"
+        anchor="left"
+        open={projectsDrawerOpen}
+        sx={{
+          width: drawerWidth,
+          flexShrink: 0,
+          '& .MuiDrawer-paper': {
+            width: drawerWidth,
+            boxSizing: 'border-box',
+            left: mainDrawerOpen ? drawerWidth : 56,
+          },
+        }}
+      >
+        <List ref={projectsDrawerRef} tabIndex={-1}>
+          {projects.map((project) => (
+            <React.Fragment key={project.name}>
+              <ListItemButton onClick={() => toggleProjectExpansion(project.name)}>
+                <ListItemIcon sx={{ minWidth: 40 }}>
+                  <FolderIcon />
+                </ListItemIcon>
+                <ListItemText primary={project.name} />
+                {expandedProjects.has(project.name) ? <ExpandLess /> : <ExpandMore />}
+              </ListItemButton>
+              <Collapse in={expandedProjects.has(project.name)} timeout="auto" unmountOnExit>
+                <List component="div" disablePadding>
+                  {project.stacks.map((stack) => (
+                    <ListItemButton
+                      key={stack.name}
+                      sx={{ 
+                        pl: 4, 
+                        py: 0.5,
+                        '&.Mui-focused': {
+                          backgroundColor: 'action.selected',
+                        },
+                      }}
+                      onClick={() => fetchStack(project.name, stack.name)}
+                      selected={selectedStack?.name === stack.name}
+                    >
+                      <ListItemText 
+                        primary={stack.name} 
+                        secondary={new Date(stack.last_updated).toLocaleString()} 
+                        primaryTypographyProps={{ variant: 'body2' }}
+                        secondaryTypographyProps={{ variant: 'caption' }}
+                      />
+                    </ListItemButton>
+                  ))}
+                </List>
+              </Collapse>
+            </React.Fragment>
+          ))}
+        </List>
+      </Drawer>
+      <Box component="main" sx={{ flexGrow: 1, height: '100%', overflow: 'hidden' }}>
         {selectedStack && (
-          <div style={{ height: 'calc(100vh - 24px)', width: '100%' }}>
-            <ReactFlow
-              nodes={nodes}
-              edges={edges}
-              fitView
-            >
-              <Background />
-              <Controls />
-            </ReactFlow>
-          </div>
+          <ReactFlow
+            nodes={nodes}
+            edges={edges}
+            fitView
+          >
+            <Background />
+            <Controls />
+          </ReactFlow>
         )}
       </Box>
     </Box>
