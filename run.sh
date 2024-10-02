@@ -32,7 +32,7 @@ function dev:backend {
 }
 
 function dev:frontend {
-    (cd "$FRONTEND_DIR" && npm run dev)
+    (cd "$FRONTEND_DIR" && pnpm run dev)
 }
 
 function dev {

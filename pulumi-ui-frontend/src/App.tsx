@@ -26,6 +26,7 @@ function App() {
     createGraph(data.resources);
   };
 
+
   const createGraph = useCallback((resources: Resource[]) => {
     const newNodes: Node[] = resources.map((resource, index) => ({
       id: resource.urn,

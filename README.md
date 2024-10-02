@@ -90,6 +90,10 @@ uvicorn pulumi_ui.main:app --reload
 > [!NOTE]
 > Assumes there is a `pulumi-ui` AWS profile available.
 
+```bash
+AWS_PROFILE=pulumi-ui AWS_REGION=us-west-2 pulumi login --cloud-url s3://mlops-club-pulumi-state 
+```
+
 The Pulumi Playground is used to generate sample Pulumi state for development and testing.
 
 To set up Pulumi:

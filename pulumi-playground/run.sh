@@ -17,7 +17,7 @@ PULUMI_APP_DIR="$THIS_DIR/src/pulumi_playground/pulumi_app"
 
 # install core and development Python dependencies into the currently activated venv
 function install {
-    uv pip install --editable "$THIS_DIR/[dev]"
+    python -m pip install --editable "$THIS_DIR/[dev]"
 }
 
 # run linting, formatting, and other static code quality tools

@@ -10,8 +10,11 @@ readme = "README.md"
 requires-python = ">=3.7"
 license = { text = "MIT" }
 dependencies = [
-    "fastapi",
+    "fastapi-slim",
+    "pydantic-settings",
     "uvicorn[standard]",
+    "typer",
+    "boto3",
 ]
 
 # version will be derived dynamically from version.txt via setuptools
@@ -52,7 +55,7 @@ where = ["src"]
 include = ["pulumi_ui*"]
 
 [tool.setuptools.package-data]
-"pulumi_ui" = ["static/**/*"]
+"pulumi_ui" = ["static/**/*", "hello.json"]
 
 [project.scripts]
 pulumi-ui = "pulumi_ui.cli:main"
