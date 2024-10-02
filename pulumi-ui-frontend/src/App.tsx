@@ -22,14 +22,16 @@ import ExpandMore from '@mui/icons-material/ExpandMore';
 import LayersIcon from '@mui/icons-material/Layers';
 import FolderIcon from '@mui/icons-material/Folder';
 
-const drawerWidth = 240;
+const mainDrawerWidthClosed = 56; // Width when closed
+const mainDrawerWidthOpen = 180; // Width when open
+const projectsDrawerWidth = 240;
 
 function App() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [selectedStack, setSelectedStack] = useState<Stack | null>(null);
   const [nodes, setNodes] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
-  const [mainDrawerOpen, setMainDrawerOpen] = useState(true);
+  const [mainDrawerOpen, setMainDrawerOpen] = useState(false);
   const [projectsDrawerOpen, setProjectsDrawerOpen] = useState(false);
   const [expandedProjects, setExpandedProjects] = useState<Set<string>>(new Set());
   const projectsDrawerRef = useRef<HTMLDivElement>(null);
@@ -124,10 +126,10 @@ function App() {
         anchor="left"
         open={mainDrawerOpen}
         sx={{
-          width: mainDrawerOpen ? drawerWidth : 56,
+          width: mainDrawerOpen ? mainDrawerWidthOpen : mainDrawerWidthClosed,
           flexShrink: 0,
           '& .MuiDrawer-paper': {
-            width: mainDrawerOpen ? drawerWidth : 56,
+            width: mainDrawerOpen ? mainDrawerWidthOpen : mainDrawerWidthClosed,
             boxSizing: 'border-box',
             overflowX: 'hidden',
             transition: theme => theme.transitions.create('width', {
@@ -138,18 +140,39 @@ function App() {
         }}
       >
         <List>
-          <ListItem disablePadding sx={{ justifyContent: mainDrawerOpen ? 'flex-end' : 'center' }}>
+          <ListItem disablePadding sx={{ 
+            justifyContent: mainDrawerOpen ? 'flex-end' : 'center',
+            paddingRight: mainDrawerOpen ? 1 : 0,
+          }}>
             <IconButton onClick={toggleMainDrawer}>
               {mainDrawerOpen ? <ChevronLeftIcon /> : <ChevronRightIcon />}
             </IconButton>
           </ListItem>
           <ListItem disablePadding>
             <Tooltip title="Stacks" placement="right" arrow>
-              <ListItemButton onClick={toggleProjectsDrawer}>
-                <ListItemIcon sx={{ minWidth: 0, justifyContent: 'center' }}>
+              <ListItemButton 
+                onClick={toggleProjectsDrawer}
+                selected={projectsDrawerOpen}
+                sx={{
+                  justifyContent: 'center',
+                  minHeight: 48,
+                  px: 2.5,
+                  '&.Mui-selected': {
+                    backgroundColor: 'action.selected',
+                  },
+                  '&.Mui-selected:hover': {
+                    backgroundColor: 'action.selected',
+                  },
+                }}
+              >
+                <ListItemIcon sx={{ 
+                  minWidth: 0, 
+                  mr: mainDrawerOpen ? 3 : 'auto', 
+                  justifyContent: 'center',
+                }}>
                   <LayersIcon />
                 </ListItemIcon>
-                {mainDrawerOpen && <ListItemText primary="Stacks" sx={{ pl: 2 }} />}
+                {mainDrawerOpen && <ListItemText primary="Stacks" sx={{ opacity: 1 }} />}
               </ListItemButton>
             </Tooltip>
           </ListItem>
@@ -160,12 +183,12 @@ function App() {
         anchor="left"
         open={projectsDrawerOpen}
         sx={{
-          width: drawerWidth,
+          width: projectsDrawerWidth,
           flexShrink: 0,
           '& .MuiDrawer-paper': {
-            width: drawerWidth,
+            width: projectsDrawerWidth,
             boxSizing: 'border-box',
-            left: mainDrawerOpen ? drawerWidth : 56,
+            left: mainDrawerOpen ? mainDrawerWidthOpen : mainDrawerWidthClosed,
           },
         }}
       >
