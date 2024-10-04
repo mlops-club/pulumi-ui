@@ -53,7 +53,7 @@ const StackExplorerBar: React.FC<StackExplorerBarProps> = ({
             <List>
                 {projects.map((project) => (
                     <React.Fragment key={project.name}>
-                        <ListItemButton onClick={() => toggleProjectExpansion(project.name)}>
+                        <ListItemButton onClick={() => toggleProjectExpansion(project.name)} disableRipple>
                             <ListItemIcon sx={{ minWidth: 40 }}>
                                 <FolderIcon />
                             </ListItemIcon>
@@ -74,6 +74,7 @@ const StackExplorerBar: React.FC<StackExplorerBarProps> = ({
                                         }}
                                         onClick={() => fetchStack(project.name, stack.name)}
                                         selected={selectedStack?.name === stack.name}
+                                        disableRipple
                                     >
                                         <ListItemText
                                             primary={stack.name}

@@ -53,7 +53,7 @@ const NavBar: React.FC<NavBarProps> = ({
                     justifyContent: mainDrawerOpen ? 'flex-end' : 'center',
                     paddingRight: mainDrawerOpen ? 1 : 0,
                 }}>
-                    <IconButton onClick={toggleMainDrawer}>
+                    <IconButton onClick={toggleMainDrawer} disableRipple>
                         {mainDrawerOpen ? <ChevronLeftIcon /> : <ChevronRightIcon />}
                     </IconButton>
                 </ListItem>
@@ -62,6 +62,7 @@ const NavBar: React.FC<NavBarProps> = ({
                         <ListItemButton
                             onClick={toggleProjectsDrawer}
                             selected={projectsDrawerOpen}
+                            disableRipple
                             sx={{
                                 justifyContent: 'center',
                                 minHeight: 48,
