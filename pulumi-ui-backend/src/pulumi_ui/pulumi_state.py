@@ -5,18 +5,22 @@ from pulumi_ui.schemas import StackInfo, Project, Stack, Resource
 from typing import List
 import json
 import os
+from loguru import logger
 
 def get_path(uri: str) -> Path | CloudPath:
     if uri.startswith(('s3://', 'az://', 'gs://')):
         return CloudPath(uri)
     
     uri = uri.replace("file://", "")
+    uri = uri.replace("~", str(Path.home()))
     return Path(uri)
 
 def list_projects(state_uri: str) -> List[Project]:
     base_path: Path | CloudPath = get_path(state_uri)
     stacks_dir = base_path / ".pulumi/stacks/"
-    stack_paths = list(stacks_dir.glob("**/*.json"))
+    logger.debug(f"Stacks directory: {stacks_dir}")
+    stack_paths = list(stacks_dir.rglob("*/*.json"))
+    logger.debug(f"Stack paths: {stack_paths}")
 
     projects = defaultdict(list)
 

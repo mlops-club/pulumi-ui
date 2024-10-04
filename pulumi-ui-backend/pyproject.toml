@@ -16,6 +16,7 @@ dependencies = [
     "typer",
     "boto3",
     "cloudpathlib[s3,gs,azure]",
+    "loguru",
 ]
 
 # version will be derived dynamically from version.txt via setuptools

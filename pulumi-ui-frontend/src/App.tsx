@@ -1,30 +1,11 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { ReactFlow, Node, Edge, Controls, Background } from '@xyflow/react';
+import { Box, CssBaseline } from '@mui/material';
+import { Node, Edge } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { Project, Stack, Resource } from './types';
-import { 
-  Box, 
-  CssBaseline, 
-  Drawer, 
-  IconButton, 
-  List, 
-  ListItem, 
-  ListItemButton, 
-  ListItemIcon, 
-  ListItemText, 
-  Collapse,
-  Tooltip
-} from '@mui/material';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import ExpandLess from '@mui/icons-material/ExpandLess';
-import ExpandMore from '@mui/icons-material/ExpandMore';
-import LayersIcon from '@mui/icons-material/Layers';
-import FolderIcon from '@mui/icons-material/Folder';
-
-const mainDrawerWidthClosed = 56; // Width when closed
-const mainDrawerWidthOpen = 180; // Width when open
-const projectsDrawerWidth = 240;
+import NavBar from './components/NavBar';
+import StackExplorerBar from './components/StackExplorerBar';
+import StackView from './components/StackView';
 
 function App() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -50,7 +31,6 @@ function App() {
       }
       const data = await response.json();
       setProjects(data);
-      // Expand all projects by default
       setExpandedProjects(new Set(data.map((p: Project) => p.name)));
     } catch (error) {
       console.error('Error fetching projects:', error);
@@ -121,126 +101,28 @@ function App() {
   return (
     <Box sx={{ display: 'flex', height: '100vh' }}>
       <CssBaseline />
-      <Drawer
-        variant="permanent"
-        anchor="left"
-        open={mainDrawerOpen}
-        sx={{
-          width: mainDrawerOpen ? mainDrawerWidthOpen : mainDrawerWidthClosed,
-          flexShrink: 0,
-          '& .MuiDrawer-paper': {
-            width: mainDrawerOpen ? mainDrawerWidthOpen : mainDrawerWidthClosed,
-            boxSizing: 'border-box',
-            overflowX: 'hidden',
-            transition: theme => theme.transitions.create('width', {
-              easing: theme.transitions.easing.sharp,
-              duration: theme.transitions.duration.enteringScreen,
-            }),
-          },
-        }}
-      >
-        <List>
-          <ListItem disablePadding sx={{ 
-            justifyContent: mainDrawerOpen ? 'flex-end' : 'center',
-            paddingRight: mainDrawerOpen ? 1 : 0,
-          }}>
-            <IconButton onClick={toggleMainDrawer}>
-              {mainDrawerOpen ? <ChevronLeftIcon /> : <ChevronRightIcon />}
-            </IconButton>
-          </ListItem>
-          <ListItem disablePadding>
-            <Tooltip title="Stacks" placement="right" arrow>
-              <ListItemButton 
-                onClick={toggleProjectsDrawer}
-                selected={projectsDrawerOpen}
-                sx={{
-                  justifyContent: 'center',
-                  minHeight: 48,
-                  px: 2.5,
-                  '&.Mui-selected': {
-                    backgroundColor: 'action.selected',
-                  },
-                  '&.Mui-selected:hover': {
-                    backgroundColor: 'action.selected',
-                  },
-                }}
-              >
-                <ListItemIcon sx={{ 
-                  minWidth: 0, 
-                  mr: mainDrawerOpen ? 3 : 'auto', 
-                  justifyContent: 'center',
-                }}>
-                  <LayersIcon />
-                </ListItemIcon>
-                {mainDrawerOpen && <ListItemText primary="Stacks" sx={{ opacity: 1 }} />}
-              </ListItemButton>
-            </Tooltip>
-          </ListItem>
-        </List>
-      </Drawer>
-      <Drawer
-        variant="persistent"
-        anchor="left"
-        open={projectsDrawerOpen}
-        sx={{
-          width: projectsDrawerWidth,
-          flexShrink: 0,
-          '& .MuiDrawer-paper': {
-            width: projectsDrawerWidth,
-            boxSizing: 'border-box',
-            left: mainDrawerOpen ? mainDrawerWidthOpen : mainDrawerWidthClosed,
-          },
-        }}
-      >
-        <List ref={projectsDrawerRef} tabIndex={-1}>
-          {projects.map((project) => (
-            <React.Fragment key={project.name}>
-              <ListItemButton onClick={() => toggleProjectExpansion(project.name)}>
-                <ListItemIcon sx={{ minWidth: 40 }}>
-                  <FolderIcon />
-                </ListItemIcon>
-                <ListItemText primary={project.name} />
-                {expandedProjects.has(project.name) ? <ExpandLess /> : <ExpandMore />}
-              </ListItemButton>
-              <Collapse in={expandedProjects.has(project.name)} timeout="auto" unmountOnExit>
-                <List component="div" disablePadding>
-                  {project.stacks.map((stack) => (
-                    <ListItemButton
-                      key={stack.name}
-                      sx={{ 
-                        pl: 4, 
-                        py: 0.5,
-                        '&.Mui-focused': {
-                          backgroundColor: 'action.selected',
-                        },
-                      }}
-                      onClick={() => fetchStack(project.name, stack.name)}
-                      selected={selectedStack?.name === stack.name}
-                    >
-                      <ListItemText 
-                        primary={stack.name} 
-                        secondary={new Date(stack.last_updated).toLocaleString()} 
-                        primaryTypographyProps={{ variant: 'body2' }}
-                        secondaryTypographyProps={{ variant: 'caption' }}
-                      />
-                    </ListItemButton>
-                  ))}
-                </List>
-              </Collapse>
-            </React.Fragment>
-          ))}
-        </List>
-      </Drawer>
+      <NavBar
+        mainDrawerOpen={mainDrawerOpen}
+        toggleMainDrawer={toggleMainDrawer}
+        toggleProjectsDrawer={toggleProjectsDrawer}
+        projectsDrawerOpen={projectsDrawerOpen}
+      />
+      <StackExplorerBar
+        projects={projects}
+        selectedStack={selectedStack}
+        projectsDrawerOpen={projectsDrawerOpen}
+        mainDrawerOpen={mainDrawerOpen}
+        expandedProjects={expandedProjects}
+        toggleProjectExpansion={toggleProjectExpansion}
+        fetchStack={fetchStack}
+      />
       <Box component="main" sx={{ flexGrow: 1, height: '100%', overflow: 'hidden' }}>
         {selectedStack && (
-          <ReactFlow
+          <StackView
+            stack={selectedStack}
             nodes={nodes}
             edges={edges}
-            fitView
-          >
-            <Background />
-            <Controls />
-          </ReactFlow>
+          />
         )}
       </Box>
     </Box>

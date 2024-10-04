@@ -150,3 +150,39 @@ make build
 ```
 
 This will build both the frontend and backend, resulting in a fully built application.
+
+
+## TODOs
+
+- [ ] Tab view
+   - [ ] `Readme` -> Render the `readme` output of the stack as html
+   - [ ] Overview -> Should have the following sections
+     - [ ] `View JSON` button -> Opens a model with the stack's syntax-highlighted JSON
+     - [ ] Configuration - table view. Config keys and values
+     - [ ] Outputs - table view. Names and values of outputs.
+     - [ ] Tags - table view. Tag keys and values.
+       - [ ] `+ New Tag` button. Opens modal. with key/value inputs and a cancel and save button.
+         - reaches out to the backend api. Mutates the JSON. Adds a tag.
+   - [ ] Resources
+     - [ ] Has 2 tabs
+         - [ ] Table View, 
+           - 2 columns
+             - [ ] icon (show svg icon of resource, or fall back to provider if not available, or fall back to blank)
+             - [ ] Type, 
+             - [ ] Name
+           - [ ] Clicking a row or a node in the graph should show a "resource view"
+             - [ ] Overview table
+               - There will be exactly 3 rows and 2 columns. The columns contain the key/value of
+                 - Type
+                 - URN
+                 - Stack Version
+             - [ ] Outputs - 2 cols. Key/value for each output. Shows "No Outputs" and an icon if there are none.
+             - [ ] Children - Table of same shape as the resources table, but limited to the children. 
+         - [ ] Graph View - Shows the React flow component.
+            - [ ] each node should show the resource urn, abbreviated if longer than 25 characters
+            - [ ] When a resource node clicked, takes you to a resource view
+            - [ ] To the right of the resource node, a small icon that can collapse/expand the node, showing it's children
+            - [ ] Child resources display to the right and vertically stacked
+            - 
+      
+   

@@ -1,0 +1,3 @@
+name: lambda-rest-api
+runtime: python
+description: A Lambda REST API project using Pulumi

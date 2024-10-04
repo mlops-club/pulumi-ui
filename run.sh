@@ -29,7 +29,8 @@ function install {
 }
 
 function dev:backend {
-    (cd "$BACKEND_DIR" && python -m pulumi_ui.cli up --state-uri "file://$PLAYGROUND_DIR/.pulumi-state" --debug)
+    # (cd "$BACKEND_DIR" && python -m pulumi_ui.cli up --state-uri "file://$PLAYGROUND_DIR/.pulumi-state" --debug)
+    (cd "$BACKEND_DIR" && python -m pulumi_ui.cli up --state-uri "file://~" --debug)
 }
 
 function dev:frontend {
@@ -147,7 +148,29 @@ function generate_lockfile {
 
 # ... (keep the existing functions)
 
-# Modify the help function to include the new function
+# Add these new functions for the Pulumi project
+
+function pulumi:install {
+    (cd "$PLAYGROUND_DIR" && pip install -r requirements.txt)
+}
+
+function pulumi:build-layer {
+    (cd "$PLAYGROUND_DIR/src/pulumi_playground/automation_api_stacks/lambda_layer" && docker build -t lambda-layer .)
+}
+
+function pulumi:preview {
+    (cd "$PLAYGROUND_DIR" && pulumi preview)
+}
+
+function pulumi:up {
+    (cd "$PLAYGROUND_DIR" && pulumi up)
+}
+
+function pulumi:destroy {
+    (cd "$PLAYGROUND_DIR" && pulumi destroy)
+}
+
+# Modify the help function to include the new Pulumi commands
 function help {
     echo "$0 <task> <args>"
     echo "Tasks:"
@@ -156,3 +179,7 @@ function help {
 
 TIMEFORMAT="Task completed in %3lR"
 time ${@:-help}
+
+function pulumi:deploy-automation {
+    (cd "$PLAYGROUND_DIR" && python -m pulumi_playground.automation_api_stacks.deploy)
+}
