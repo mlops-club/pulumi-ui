@@ -19,8 +19,8 @@ interface ResourceGraphProps {
     resources: Resource[];
 }
 
-const nodeWidth = 280; // Updated from 220 to 280
-const nodeHeight = 60;
+const nodeWidth = 220;
+const nodeHeight = 40;
 
 interface CustomNodeData {
     name: string;
@@ -47,7 +47,7 @@ const ResourceGraph: React.FC<ResourceGraphProps> = ({ resources }) => {
     const getLayoutedElements = useCallback((nodes: CustomNode[], edges: Edge[], direction = 'LR') => {
         const dagreGraph = new dagre.graphlib.Graph();
         dagreGraph.setDefaultEdgeLabel(() => ({}));
-        dagreGraph.setGraph({ rankdir: direction });
+        dagreGraph.setGraph({ rankdir: direction, ranksep: 50, nodesep: 10 });
 
         nodes.forEach((node) => {
             dagreGraph.setNode(node.id, { width: nodeWidth, height: nodeHeight });
@@ -179,6 +179,9 @@ const ResourceGraph: React.FC<ResourceGraphProps> = ({ resources }) => {
             onEdgesChange={onEdgesChange}
             nodeTypes={nodeTypes}
             fitView
+            minZoom={0.1}
+            maxZoom={1.5}
+            defaultZoom={0.5}
             attributionPosition="bottom-left"
         >
             <Background />
