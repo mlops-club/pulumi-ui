@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import React, { useState, useMemo, useEffect, useCallback, ErrorInfo } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import {
     Box,
@@ -26,6 +26,29 @@ import ResourceGraph from './ResourceGraph';
 
 type Order = 'asc' | 'desc';
 type TabValue = 'overview' | 'readme' | 'resources';
+
+class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean }> {
+    constructor(props: { children: React.ReactNode }) {
+        super(props);
+        this.state = { hasError: false };
+    }
+
+    static getDerivedStateFromError(error: Error) {
+        return { hasError: true };
+    }
+
+    componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+        console.error("Caught an error:", error, errorInfo);
+    }
+
+    render() {
+        if (this.state.hasError) {
+            return <h1>Something went wrong with the graph view.</h1>;
+        }
+
+        return this.props.children;
+    }
+}
 
 const StackView: React.FC = () => {
     const { projectName, stackName, tab } = useParams<{ projectName: string; stackName: string; tab: string }>();
@@ -216,9 +239,11 @@ const StackView: React.FC = () => {
                                 </Table>
                             </TableContainer>
                         ) : (
-                            <Box sx={{ height: 'calc(100% - 40px)' }}>
-                                <ResourceGraph resources={stack.resources} />
-                            </Box>
+                            <ErrorBoundary>
+                                <Box sx={{ height: 'calc(100% - 40px)' }}>
+                                    <ResourceGraph resources={stack.resources} />
+                                </Box>
+                            </ErrorBoundary>
                         )}
                     </Box>
                 )}
