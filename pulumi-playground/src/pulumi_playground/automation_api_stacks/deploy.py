@@ -3,6 +3,10 @@ import json
 import pulumi
 from pulumi import automation as auto
 from pulumi_aws import s3, lambda_, apigatewayv2, iam
+import os
+
+# Get the current directory of the script
+current_dir = os.path.dirname(os.path.abspath(__file__))
 
 # This is the pulumi program in "inline function" form
 def pulumi_program():
@@ -36,7 +40,7 @@ def pulumi_program():
         handler="handler.lambda_handler",
         role=lambda_role.arn,
         code=pulumi.AssetArchive({
-            ".": pulumi.FileArchive("./lambda_function")
+            ".": pulumi.FileArchive(os.path.join(current_dir, "lambda_function"))
         }),
         environment={
             "variables": {
@@ -75,7 +79,7 @@ if len(args) > 0:
         destroy = True
 
 project_name = "lambda-rest-api"
-stack_name = "dev"
+stack_name = "dev-2"
 
 # create or select a stack matching the specified name and project.
 # this will set up a workspace with everything necessary to run our inline program

@@ -3,7 +3,8 @@ import { Handle, Position } from '@xyflow/react';
 
 interface CustomNodeProps {
     data: {
-        label: string;
+        name: string;
+        type: string;
         hasChildren: boolean;
         isExpanded: boolean;
         onToggle: () => void;
@@ -12,9 +13,20 @@ interface CustomNodeProps {
 
 const CustomNode: React.FC<CustomNodeProps> = ({ data }) => {
     return (
-        <div style={{ background: '#fff', padding: '10px', borderRadius: '3px', border: '1px solid #ccc' }}>
+        <div style={{
+            background: '#fff',
+            padding: '10px',
+            borderRadius: '3px',
+            border: '1px solid #ccc',
+            width: '180px',
+            height: '55px',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+        }}>
             <Handle type="target" position={Position.Left} />
-            <div>{data.label}</div>
+            <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>{data.name}</div>
+            <div style={{ fontSize: '0.8em', color: '#666' }}>{data.type}</div>
             <Handle type="source" position={Position.Right} />
             {data.hasChildren && (
                 <div

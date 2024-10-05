@@ -3,6 +3,11 @@ import pulumi_aws as aws
 import pulumi_awsx as awsx
 import json
 from pulumi import AssetArchive, FileArchive
+from pathlib import Path
+
+THIS_DIR = Path(__file__).parent
+LAMBDA_FUNCTION_DIR = THIS_DIR / "../automation_api_stacks/lambda_function"
+LAMBDA_LAYER_DIR = THIS_DIR / "../automation_api_stacks/lambda_layer"
 
 class LambdaRestApiStack(pulumi.Stack):
     def __init__(self, name: str, opts: pulumi.ResourceOptions = None):
@@ -14,7 +19,7 @@ class LambdaRestApiStack(pulumi.Stack):
         # Create a Docker build for the Lambda layer
         layer_image = awsx.ecr.Image("lambda-layer",
             repository_url=awsx.ecr.get_repository("lambda-layer-repo").url,
-            path="./lambda_layer",
+            path=str(LAMBDA_LAYER_DIR),
             extra_options=["--platform=linux/amd64"])
 
         # Create a Lambda layer from the Docker build
@@ -29,7 +34,7 @@ class LambdaRestApiStack(pulumi.Stack):
             handler="handler.lambda_handler",
             role=aws.iam.get_role(name="lambda-role").arn,
             code=AssetArchive({
-                ".": FileArchive("./lambda_function")
+                ".": FileArchive(str(LAMBDA_FUNCTION_DIR))
             }),
             layers=[layer.arn],
             environment={

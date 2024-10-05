@@ -20,10 +20,11 @@ interface ResourceGraphProps {
 }
 
 const nodeWidth = 200;
-const nodeHeight = 50;
+const nodeHeight = 75; // Increased height to accommodate two lines of text
 
 interface CustomNodeData {
-    label: string;
+    name: string;
+    type: string;
     hasChildren: boolean;
     isExpanded: boolean;
     onToggle: () => void;
@@ -32,6 +33,10 @@ interface CustomNodeData {
 }
 
 type CustomNode = Node<CustomNodeData>;
+
+const truncateText = (text: string, maxLength: number) => {
+    return text.length > maxLength ? text.slice(0, maxLength) + '...' : text;
+};
 
 const ResourceGraph: React.FC<ResourceGraphProps> = ({ resources }) => {
     const [allNodes, setAllNodes] = useState<CustomNode[]>([]);
@@ -133,7 +138,8 @@ const ResourceGraph: React.FC<ResourceGraphProps> = ({ resources }) => {
             id: resource.urn,
             type: 'custom',
             data: {
-                label: `${resource.type}\n${resource.urn.split('::').pop()}`,
+                name: truncateText(resource.urn.split('::').pop() || '', 25),
+                type: truncateText(resource.type, 25),
                 hasChildren: resources.some((r) => r.parent === resource.urn),
                 isExpanded: true,
                 onToggle: () => toggleNodeExpansion(resource.urn),
