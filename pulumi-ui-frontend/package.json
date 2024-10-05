@@ -14,7 +14,9 @@
     "@emotion/styled": "^11.13.0",
     "@mui/icons-material": "^6.1.1",
     "@mui/material": "^6.1.1",
+    "@types/dagre": "^0.7.52",
     "@xyflow/react": "^12.3.1",
+    "dagre": "^0.8.5",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
