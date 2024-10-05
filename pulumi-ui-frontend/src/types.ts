@@ -4,21 +4,15 @@ export interface StackInfo {
 }
 
 export interface Project {
-  name: string;  // Changed from project_name to name
+  name: string;
   stacks: StackInfo[];
 }
 
 export interface Resource {
   urn: string;
   type: string;
-  custom: boolean;
-  id?: string;
-  parent?: string;
-  provider?: string;
-  inputs?: Record<string, any>;
-  outputs?: Record<string, any>;
-  created?: string;
-  modified?: string;
+  parent?: string;  // Add this line
+  // ... other resource properties
 }
 
 export interface Stack {

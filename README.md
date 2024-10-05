@@ -165,7 +165,7 @@ This will build both the frontend and backend, resulting in a fully built applic
          - reaches out to the backend api. Mutates the JSON. Adds a tag.
    - [ ] Resources
      - [ ] Has 2 tabs
-         - [ ] Table View, 
+         - [ ] **1. Table View,** 
            - 2 columns
              - [ ] icon (show svg icon of resource, or fall back to provider if not available, or fall back to blank)
              - [ ] Type, 
@@ -178,7 +178,7 @@ This will build both the frontend and backend, resulting in a fully built applic
                  - Stack Version
              - [ ] Outputs - 2 cols. Key/value for each output. Shows "No Outputs" and an icon if there are none.
              - [ ] Children - Table of same shape as the resources table, but limited to the children. 
-         - [ ] Graph View - Shows the React flow component.
+         - [ ] **2. Graph View** - Shows the React flow component.
             - [ ] each node should show the resource urn, abbreviated if longer than 25 characters
             - [ ] When a resource node clicked, takes you to a resource view
             - [ ] To the right of the resource node, a small icon that can collapse/expand the node, showing it's children

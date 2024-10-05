@@ -7,6 +7,7 @@ import {
     ListItemText,
     Collapse
 } from '@mui/material';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import FolderIcon from '@mui/icons-material/Folder';
@@ -35,6 +36,19 @@ const StackExplorerBar: React.FC<StackExplorerBarProps> = ({
     toggleProjectExpansion,
     fetchStack,
 }) => {
+    const navigate = useNavigate();
+    const location = useLocation();
+    const { projectName: currentProjectName, stackName: currentStackName } = useParams<{ projectName?: string; stackName?: string }>();
+
+    const handleStackClick = (projectName: string, stackName: string) => {
+        fetchStack(projectName, stackName);
+        navigate(`/projects/${projectName}/stacks/${stackName}/overview`);
+    };
+
+    const isStackSelected = (projectName: string, stackName: string) => {
+        return location.pathname.includes(`/projects/${projectName}/stacks/${stackName}`);
+    };
+
     return (
         <Drawer
             variant="persistent"
@@ -68,12 +82,15 @@ const StackExplorerBar: React.FC<StackExplorerBarProps> = ({
                                         sx={{
                                             pl: 4,
                                             py: 0.5,
-                                            '&.Mui-focused': {
+                                            '&.Mui-selected': {
+                                                backgroundColor: 'action.selected',
+                                            },
+                                            '&.Mui-selected:hover': {
                                                 backgroundColor: 'action.selected',
                                             },
                                         }}
-                                        onClick={() => fetchStack(project.name, stack.name)}
-                                        selected={selectedStack?.name === stack.name}
+                                        onClick={() => handleStackClick(project.name, stack.name)}
+                                        selected={isStackSelected(project.name, stack.name)}
                                         disableRipple
                                     >
                                         <ListItemText
