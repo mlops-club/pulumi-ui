@@ -46,7 +46,8 @@ const StackExplorerBar: React.FC<StackExplorerBarProps> = ({
     };
 
     const isStackSelected = (projectName: string, stackName: string) => {
-        return location.pathname.includes(`/projects/${projectName}/stacks/${stackName}`);
+        const pathParts = location.pathname.split('/');
+        return pathParts[2] === projectName && pathParts[4] === stackName;
     };
 
     return (

@@ -79,7 +79,7 @@ if len(args) > 0:
         destroy = True
 
 project_name = "lambda-rest-api"
-stack_name = "dev-2"
+stack_name = "another"
 
 # create or select a stack matching the specified name and project.
 # this will set up a workspace with everything necessary to run our inline program
