@@ -19,8 +19,8 @@ interface ResourceGraphProps {
     resources: Resource[];
 }
 
-const nodeWidth = 200;
-const nodeHeight = 75; // Increased height to accommodate two lines of text
+const nodeWidth = 280; // Updated from 220 to 280
+const nodeHeight = 60;
 
 interface CustomNodeData {
     name: string;
@@ -138,8 +138,8 @@ const ResourceGraph: React.FC<ResourceGraphProps> = ({ resources }) => {
             id: resource.urn,
             type: 'custom',
             data: {
-                name: truncateText(resource.urn.split('::').pop() || '', 25),
-                type: truncateText(resource.type, 25),
+                name: resource.urn.split('::').pop() || '',
+                type: resource.type,
                 hasChildren: resources.some((r) => r.parent === resource.urn),
                 isExpanded: true,
                 onToggle: () => toggleNodeExpansion(resource.urn),
