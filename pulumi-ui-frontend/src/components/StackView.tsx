@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useCallback, ErrorInfo } from 'react';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useParams, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import {
     Box,
     Tabs,
@@ -54,6 +54,7 @@ const StackView: React.FC = () => {
     const { projectName, stackName, tab } = useParams<{ projectName: string; stackName: string; tab: string }>();
     const navigate = useNavigate();
     const location = useLocation();
+    const [searchParams] = useSearchParams();
     const [stack, setStack] = useState<Stack | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -91,14 +92,24 @@ const StackView: React.FC = () => {
     useEffect(() => {
         if (tab && ['overview', 'readme', 'resources'].includes(tab)) {
             setTabValue(tab as TabValue);
+            if (tab === 'resources') {
+                const graphView = searchParams.get('graph_view');
+                setResourceView(graphView === 'true' ? 'graph' : 'list');
+            }
         } else {
             navigate(`/projects/${projectName}/stacks/${stackName}/overview`, { replace: true });
         }
-    }, [tab, projectName, stackName, navigate]);
+    }, [tab, projectName, stackName, navigate, searchParams]);
 
     const handleTabChange = useCallback((event: React.SyntheticEvent, newValue: TabValue) => {
-        navigate(`/projects/${projectName}/stacks/${stackName}/${newValue}`);
-    }, [navigate, projectName, stackName]);
+        const graphView = searchParams.get('graph_view');
+        const newPath = `/projects/${projectName}/stacks/${stackName}/${newValue}`;
+        if (newValue === 'resources' && graphView === 'true') {
+            navigate(`${newPath}?graph_view=true`);
+        } else {
+            navigate(newPath);
+        }
+    }, [navigate, projectName, stackName, searchParams]);
 
     const handleResourceViewChange = useCallback((
         event: React.MouseEvent<HTMLElement>,
@@ -106,8 +117,15 @@ const StackView: React.FC = () => {
     ) => {
         if (newView !== null) {
             setResourceView(newView);
+            const newSearchParams = new URLSearchParams(searchParams);
+            if (newView === 'graph') {
+                newSearchParams.set('graph_view', 'true');
+            } else {
+                newSearchParams.delete('graph_view');
+            }
+            navigate(`${location.pathname}?${newSearchParams.toString()}`, { replace: true });
         }
-    }, []);
+    }, [navigate, location.pathname, searchParams]);
 
     const handleRequestSort = useCallback((property: keyof Resource) => {
         setOrder((prevOrder) => (orderBy === property && prevOrder === 'asc' ? 'desc' : 'asc'));
