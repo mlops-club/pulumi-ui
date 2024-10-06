@@ -113,6 +113,6 @@ If engineers can use this tool to find initial success self-hosting Pulumi, they
 
 We would LOVE to have you contribute! 
 
-Guides, docs, examples, features, hype, IaC to help folks deploy this themselves. All of it.
+Guides, docs, examples, tests, features, hype, IaC to help folks deploy this themselves. All of it.
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md)

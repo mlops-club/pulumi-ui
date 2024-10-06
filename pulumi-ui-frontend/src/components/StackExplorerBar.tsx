@@ -24,7 +24,7 @@ interface StackExplorerBarProps {
 }
 
 const projectsDrawerWidth = 240;
-const mainDrawerWidthOpen = 180;
+const mainDrawerWidthOpen = 180; // Updated to match NavBar
 const mainDrawerWidthClosed = 56;
 
 const StackExplorerBar: React.FC<StackExplorerBarProps> = ({
@@ -62,6 +62,7 @@ const StackExplorerBar: React.FC<StackExplorerBarProps> = ({
                     width: projectsDrawerWidth,
                     boxSizing: 'border-box',
                     left: mainDrawerOpen ? mainDrawerWidthOpen : mainDrawerWidthClosed,
+                    // Removed paddingTop
                 },
             }}
         >
