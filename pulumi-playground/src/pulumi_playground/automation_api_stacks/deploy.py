@@ -4,6 +4,11 @@ import pulumi
 from pulumi import automation as auto
 from pulumi_aws import s3, lambda_, apigatewayv2, iam
 import os
+from pathlib import Path
+
+THIS_DIR = Path(__file__).parent
+# README_FPATH = THIS_DIR / "../../../README.md"
+README_FPATH = Path("/Users/eric/repos/pulumi-ui/README.md")
 
 # Get the current directory of the script
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -70,6 +75,7 @@ def pulumi_program():
         lambda endpoint: f"curl -X POST {endpoint} -H 'Content-Type: application/json' -d '{{\"key\": \"value\"}}'"
     )
     pulumi.export("example_curl_command", example_curl)
+    pulumi.export("readme", README_FPATH.read_text())
 
 # To destroy our program, we can run `python main.py destroy`
 destroy = False
@@ -79,7 +85,7 @@ if len(args) > 0:
         destroy = True
 
 project_name = "lambda-rest-api"
-stack_name = "another"
+stack_name = "markdown-readme"
 
 # create or select a stack matching the specified name and project.
 # this will set up a workspace with everything necessary to run our inline program

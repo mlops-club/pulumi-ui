@@ -20,6 +20,7 @@ import {
     Link
 } from '@mui/material';
 import ReactMarkdown from 'react-markdown';
+import rehypeRaw from 'rehype-raw';
 import { Stack, Resource } from '../types';
 import ListIcon from '@mui/icons-material/List';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
@@ -155,7 +156,7 @@ const StackView: React.FC = () => {
         if (stack && stack.outputs && stack.outputs.readme) {
             return (
                 <Box sx={{ p: 2 }}>
-                    <ReactMarkdown>{stack.outputs.readme}</ReactMarkdown>
+                    <ReactMarkdown rehypePlugins={[rehypeRaw]}>{stack.outputs.readme}</ReactMarkdown>
                 </Box>
             );
         } else {

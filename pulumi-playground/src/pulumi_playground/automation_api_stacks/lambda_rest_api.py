@@ -8,6 +8,7 @@ from pathlib import Path
 THIS_DIR = Path(__file__).parent
 LAMBDA_FUNCTION_DIR = THIS_DIR / "../automation_api_stacks/lambda_function"
 LAMBDA_LAYER_DIR = THIS_DIR / "../automation_api_stacks/lambda_layer"
+README_FPATH = THIS_DIR / "../../../README.md"
 
 class LambdaRestApiStack(pulumi.Stack):
     def __init__(self, name: str, opts: pulumi.ResourceOptions = None):
@@ -59,4 +60,6 @@ class LambdaRestApiStack(pulumi.Stack):
         # Export the API endpoint URL
         pulumi.export("api_endpoint", api.api_endpoint)
         pulumi.export("bucket_name", bucket.id)
+        pulumi.export("readme", README_FPATH.read_text())
+        pulumi.export("test", "eric")
 
