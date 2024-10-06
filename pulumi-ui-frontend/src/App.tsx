@@ -4,6 +4,7 @@ import { Box, CssBaseline } from '@mui/material';
 import NavBar from './components/NavBar';
 import StackExplorerBar from './components/StackExplorerBar';
 import StackView from './components/StackView';
+import WelcomePage from './components/WelcomePage';
 import { Project, Stack } from './types';
 
 const App: React.FC = () => {
@@ -140,7 +141,7 @@ function AppContent({
       />
       <Box component="main" sx={{ flexGrow: 1, height: '100%', overflow: 'hidden' }}>
         <Routes>
-          <Route path="/" element={<React.Fragment />} />
+          <Route path="/" element={<WelcomePage />} />
           <Route path="/projects/:projectName/stacks/:stackName" element={<Navigate to="overview" replace />} />
           <Route path="/projects/:projectName/stacks/:stackName/:tab" element={<StackView />} />
         </Routes>
