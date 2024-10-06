@@ -60,4 +60,4 @@ include = ["pulumi_ui*"]
 "pulumi_ui" = ["static/**/*"]
 
 [project.scripts]
-pulumi-ui = "pulumi_ui.cli:main"
+pulumi-ui = "pulumi_ui.cli:cli"
