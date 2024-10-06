@@ -16,12 +16,16 @@ import {
     TableSortLabel,
     Paper,
     CircularProgress,
-    Button
+    Button,
+    Link
 } from '@mui/material';
+import ReactMarkdown from 'react-markdown';
 import { Stack, Resource } from '../types';
 import ListIcon from '@mui/icons-material/List';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import HomeIcon from '@mui/icons-material/Home';
+import DescriptionIcon from '@mui/icons-material/Description';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import ResourceGraph from './ResourceGraph';
 
 type Order = 'asc' | 'desc';
@@ -147,6 +151,48 @@ const StackView: React.FC = () => {
         return [...stack.resources].sort(comparator);
     }, [stack, order, orderBy]);
 
+    const renderReadme = () => {
+        if (stack && stack.outputs && stack.outputs.readme) {
+            return (
+                <Box sx={{ p: 2 }}>
+                    <ReactMarkdown>{stack.outputs.readme}</ReactMarkdown>
+                </Box>
+            );
+        } else {
+            return (
+                <Box sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    height: '100%',
+                    textAlign: 'center',
+                    p: 3
+                }}>
+                    <Typography variant="h6" gutterBottom>
+                        <Link
+                            href="https://www.pulumi.com/docs/pulumi-cloud/projects-and-stacks/#stack-readme"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            sx={{ display: 'inline-flex', alignItems: 'center' }}
+                        >
+                            Stack README's
+                            <OpenInNewIcon sx={{ ml: 0.5, fontSize: '1rem' }} />
+                        </Link>{' '}
+                        are documentation for your Stack. README templates can reference Stack outputs and resource properties.
+                    </Typography>
+                    <DescriptionIcon sx={{ fontSize: 60, my: 2 }} />
+                    <Typography variant="h5" gutterBottom>
+                        No README
+                    </Typography>
+                    <Typography>
+                        There is no Stack README. To create one, add an output resource to your Stack called 'readme'.
+                    </Typography>
+                </Box>
+            );
+        }
+    };
+
     if (loading) {
         return (
             <Box display="flex" justifyContent="center" alignItems="center" height="100%">
@@ -196,12 +242,7 @@ const StackView: React.FC = () => {
                         {/* Add overview content here */}
                     </Box>
                 )}
-                {tabValue === 'readme' && (
-                    <Box>
-                        <h2>Readme</h2>
-                        {/* Add readme content here */}
-                    </Box>
-                )}
+                {tabValue === 'readme' && renderReadme()}
                 {tabValue === 'resources' && (
                     <Box sx={{ height: '100%' }}>
                         <Box sx={{ mb: 2 }}>
