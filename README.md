@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="./docs/pulumi-ui-logo.png" width="200px">
+    <img src="https://github.com/mlops-club/pulumi-ui/blob/main/docs/pulumi-ui-logo.png?raw=true" width="200px">
     <h3 align="center">pulumi-ui</h3>
 </p>
 
@@ -31,19 +31,7 @@
 
 The philosophical scope of this project includes tools, guides, or any resources that can help teams get the most **advanced, production-level experience** possible when self-hosting Pulumi--and to make this **simple**.
 
-![alt text](./docs/ui-preview.png)
-
-Pulumi is a great IaC tool. 
-
-It's open source. It uses *real code* unlike Terraform and CloudFormation. It can deploy resources across multiple clouds, unlike AWS CDK.
-
-However, coming from "free" IaC tools like CloudFormation and AWS CDK, Pulumi Cloud's pricing of $1.10/resource/mo for teams larger than 10 people can be a hard pill to swallow.
-
-We support the company behind Pulumi. Pulumi leads the way in IaC innovation, and it takes money to do that. 
-
-We view this project as a way to increase the size of the Pulumi community. 
-
-If engineers can use this tool to find initial success self-hosting Pulumi, they will be better equipped to get approval from their procurement departments to buy Pulumi Cloud. Sometimes that requires more than 10 collaborators, more than 200 resources, etc.
+![alt text](https://github.com/mlops-club/pulumi-ui/blob/main/docs/ui-preview.png?raw=true)
 
 ## Quick start
 
@@ -107,6 +95,24 @@ Assuming you normally run `pulumi login az://my-pulumi-state-account/my-pulumi-s
 AZURE_STORAGE_CONNECTION_STRING=xxx pulumi-ui up --state-uri az://my-pulumi-state-account/my-pulumi-state-container
 ```
 
+## Why does this project exist?
+
+Pulumi is a great IaC tool. 
+
+It's open source. It uses *real code* unlike Terraform and CloudFormation. It can deploy resources across multiple clouds, unlike AWS CDK.
+
+However, coming from "free" IaC tools like CloudFormation and AWS CDK, Pulumi Cloud's pricing of $1.10/resource/mo for teams larger than 10 people can be a tough pill to swallow.
+
+We support the company behind Pulumi. Pulumi leads the way in IaC innovation, and it takes money to do that. 
+
+We hope for this project to increase the size and passion of the Pulumi community, bringing them more contributors and customers.
+
+If engineers can use this tool to find initial success self-hosting Pulumi, they will be better equipped to get approval from their procurement departments to buy Pulumi Cloud. Sometimes that initial win requires more than 10 collaborators, more than 200 resources, more than a few-week "POC period", etc.
+
 ## Contributing
+
+We would LOVE to have you contribute! 
+
+Guides, docs, examples, features, hype, IaC to help folks deploy this themselves. All of it.
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md)

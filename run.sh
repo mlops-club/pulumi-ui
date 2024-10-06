@@ -20,8 +20,7 @@ function install:backend {
 }
 
 function run:wheel {
-    uvx --with ${BACKEND_DIR}/dist/pulumi_ui-*.whl pulumi-ui up --state-uri fil
-e://~
+    uvx --with ${BACKEND_DIR}/dist/pulumi_ui-*.whl pulumi-ui up --state-uri file://~
 }
 
 function install:frontend {
