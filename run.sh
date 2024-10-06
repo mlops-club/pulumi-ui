@@ -19,8 +19,13 @@ function install:backend {
     (cd "$BACKEND_DIR" && uv pip install --editable ".[dev]")
 }
 
+function run:wheel {
+    uvx --with ${BACKEND_DIR}/dist/pulumi_ui-*.whl pulumi-ui up --state-uri fil
+e://~
+}
+
 function install:frontend {
-    (cd "$FRONTEND_DIR" && npm install)
+    (cd "$FRONTEND_DIR" && pnpm install)
 }
 
 function install {
@@ -67,7 +72,7 @@ function build:backend {
 }
 
 function build:frontend {
-    (cd "$FRONTEND_DIR" && npm run build)
+    (cd "$FRONTEND_DIR" && pnpm run build)
 }
 
 function build {
