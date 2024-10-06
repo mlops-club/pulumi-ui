@@ -1,188 +1,112 @@
-# Pulumi UI
+<p align="center">
+    <img src="./docs/pulumi-ui-logo.png" width="200px">
+    <h3 align="center">pulumi-ui</h3>
+</p>
 
-Pulumi UI is a web-based application for visualizing and managing self-hosted Pulumi state. It consists of a FastAPI backend and a React frontend, allowing users to view and interact with their Pulumi stacks and resources.
+<p align="center">
+  A UI to visualize Pulumi stacks in a <a href="https://www.pulumi.com/docs/concepts/state/">self-hosted state backend</a>.
+</p>
 
-## Quickstart
+<p align="center">
+  <a href="https://opensource.org/licenses/Apache-2.0">
+    <img src="https://img.shields.io/badge/License-Apache%202.0-blue?style=for-the-badge&logo=apache" alt="Apache 2.0 License">
+  </a>
+  <!-- <a href="https://gitpod.io/#https://github.com/mlops-club/pyprojen">
+    <img src="https://img.shields.io/badge/Gitpod-ready--to--code-blue?style=for-the-badge&logo=gitpod" alt="Gitpod ready-to-code">
+  </a> -->
+  <a href="https://www.pulumi.com/docs/">
+    <img src="https://img.shields.io/badge/Pulumi-8A3391?style=for-the-badge&logo=pulumi" alt="Pulumi Docs">
+  </a>
+  <a href="https://github.com/mlops-club/pyprojen/commits/main">
+    <img src="https://img.shields.io/github/commit-activity/w/mlops-club/pulumi-ui?style=for-the-badge&logo=github" alt="Commit activity">
+  </a>
+  
+</p>
 
-```bash
-make clean build run-wheel
-```
+<br/>
 
-## Project Structure
+## Overview
 
-The project is organized into three main directories:
+**TL;DR** The goal of this project is to make free self-hosting Pulumi at scale more viable for teams that do not need all of Pulumi Cloud's features.
 
-1. `pulumi-ui-backend/`: FastAPI backend
-2. `pulumi-ui-frontend/`: React frontend
-3. `pulumi-playground/`: Pulumi project for testing and development
+The philosophical scope of this project includes tools, guides, or any resources that can help teams get the most **advanced, production-level experience** possible when self-hosting Pulumi--and to make this **simple**.
 
-## Prerequisites
+![alt text](./docs/ui-preview.png)
 
-- Python 3.11+
-- Node.js 22+ (use `nvm` for version management)
-- pnpm 9+
-- Pulumi CLI
+Pulumi is a great IaC tool. 
 
-## Setup
+It's open source. It uses *real code* unlike Terraform and CloudFormation. It can deploy resources across multiple clouds, unlike AWS CDK.
 
-1. Clone the repository:
-   ```
-   git clone https://github.com/your-username/pulumi-ui.git
-   cd pulumi-ui
-   ```
+However, coming from "free" IaC tools like CloudFormation and AWS CDK, Pulumi Cloud's pricing of $1.10/resource/mo for teams larger than 10 people can be a hard pill to swallow.
 
-2. Install dependencies:
-   ```
-   make install
-   ```
+We support the company behind Pulumi. Pulumi leads the way in IaC innovation, and it takes money to do that. 
 
-   This will install both backend and frontend dependencies.
+We view this project as a way to increase the size of the Pulumi community. 
 
-## Frontend (pulumi-ui-frontend)
+If engineers can use this tool to find initial success self-hosting Pulumi, they will be better equipped to get approval from their procurement departments to buy Pulumi Cloud. Sometimes that requires more than 10 collaborators, more than 200 resources, etc.
 
-The frontend uses the following tools and libraries:
+## Quick start
 
-- pnpm: Package manager
-- Vite: Build tool and development server
-- TypeScript: Typed superset of JavaScript
-- React: UI library
-- React Flow: Library for rendering node-based UIs
-- Material-UI: React component library
+### Launch the UI
 
-To set up the frontend for development:
+Launch the UI using your Pulumi state backend. 
 
-1. Ensure you're using the correct Node.js version:
-   ```
-   nvm use
-   ```
-   (This project includes an `.nvmrc` file for automatic version selection)
+These examples assume your state is located in `~/.pulumi` which is the default location used when you run `pulumi login --local`.
 
-2. Install dependencies:
-   ```
-   cd pulumi-ui-frontend
-   pnpm install
-   ```
-
-3. Start the development server:
-   ```
-   pnpm dev
-   ```
-
-## Backend (pulumi-ui-backend)
-
-The backend uses:
-
-- FastAPI: Modern, fast (high-performance) web framework for building APIs
-- Uvicorn: ASGI server for running the FastAPI application
-
-The backend also serves the frontend as static files in production.
-
-To run the backend independently:
-
-```
-cd pulumi-ui-backend
-pip install -e ".[dev]"
-uvicorn pulumi_ui.main:app --reload
-```
-
-## Pulumi Playground (pulumi-playground)
-
-> [!NOTE]
-> Assumes there is a `pulumi-ui` AWS profile available.
+With `pip`
 
 ```bash
-AWS_PROFILE=pulumi-ui AWS_REGION=us-west-2 pulumi login --state-uri s3://mlops-club-pulumi-state 
+pip install pulumi-ui
+pulumi-ui up --state-uri file://~
 ```
 
-The Pulumi Playground is used to generate sample Pulumi state for development and testing.
+With `uvx`
 
-To set up Pulumi:
-
-1. Install Pulumi CLI:
-   ```
-   brew install pulumi
-   ```
-
-2. Install Python dependencies:
-   ```
-   cd pulumi-playground
-   pip install -e ".[dev]"
-   ```
-   Note: Use `pip` instead of `uv` to ensure compatibility with the Pulumi CLI.
-
-3. Run Pulumi commands:
-   ```
-   make pulumi-up
-   ```
-
-The Pulumi Playground writes state that the backend serves to the frontend, which the frontend then visualizes.
-
-## Running the Application
-
-To run both the backend and frontend concurrently:
-
-```
-make dev
+```bash
+uvx pulumi-ui up --state-uri file://~
 ```
 
-This will start the backend on `http://localhost:8000` and the frontend on `http://localhost:5173`.
+With `pipx`
 
-## Development
-
-- Backend (FastAPI):
-  - Source code: `pulumi-ui-backend/src/pulumi_ui/`
-  - Run independently: `cd pulumi-ui-backend && make dev`
-
-- Frontend (React):
-  - Source code: `pulumi-ui-frontend/src/`
-  - Run independently: `cd pulumi-ui-frontend && pnpm dev`
-
-- Pulumi Playground:
-  - Source code: `pulumi-playground/src/pulumi_playground/pulumi_app/`
-  - Run Pulumi commands: `cd pulumi-playground && make pulumi-up`
-
-## Building the Application
-
-To build the entire application (frontend and backend):
-
-```
-make build
+```bash
+pipx run pulumi-ui up --state-uri file://~
 ```
 
-This will build both the frontend and backend, resulting in a fully built application.
+With `uv`
 
+```bash
+uv add pulumi-ui
+pulumi-ui up --state-uri file://~
+```
 
-## TODOs
+### Use a remote state backend
 
-- [ ] Tab view
-   - [ ] `Readme` -> Render the `readme` output of the stack as html
-   - [ ] Overview -> Should have the following sections
-     - [ ] `View JSON` button -> Opens a model with the stack's syntax-highlighted JSON
-     - [ ] Configuration - table view. Config keys and values
-     - [ ] Outputs - table view. Names and values of outputs.
-     - [ ] Tags - table view. Tag keys and values.
-       - [ ] `+ New Tag` button. Opens modal. with key/value inputs and a cancel and save button.
-         - reaches out to the backend api. Mutates the JSON. Adds a tag.
-   - [ ] Resources
-     - [ ] Has 2 tabs
-         - [ ] **1. Table View,** 
-           - 2 columns
-             - [ ] icon (show svg icon of resource, or fall back to provider if not available, or fall back to blank)
-             - [ ] Type, 
-             - [ ] Name
-           - [ ] Clicking a row or a node in the graph should show a "resource view"
-             - [ ] Overview table
-               - There will be exactly 3 rows and 2 columns. The columns contain the key/value of
-                 - Type
-                 - URN
-                 - Stack Version
-             - [ ] Outputs - 2 cols. Key/value for each output. Shows "No Outputs" and an icon if there are none.
-             - [ ] Children - Table of same shape as the resources table, but limited to the children. 
-         - [ ] **2. Graph View** - Shows the React flow component.
-            - [ ] each node should show the resource urn, abbreviated if longer than 25 characters
-            - [ ] When a resource node clicked, takes you to a resource view
-            - [ ] To the right of the resource node, a small icon that can collapse/expand the node, showing it's children
-            - [ ] Child resources display to the right and vertically stacked
-            - 
-      
-   
+#### AWS S3 Bucket
+
+`pulumi-ui` can pick up credentials from the environment, e.g. AWS profiles, IAM roles, etc.
+
+Assuming you normally run `pulumi login s3://my-pulumi-state-bucket` to connect to your state backend, then run:
+
+```bash
+AWS_PROFILE=xxx pulumi-ui up --state-uri s3://my-pulumi-state-bucket
+```
+
+#### Google Cloud Storage
+
+Assuming you normally run `pulumi login gs://my-pulumi-state-bucket` to connect to your state backend, then run:
+
+```bash
+GOOGLE_APPLICATION_CREDENTIALS=xxx pulumi-ui up --state-uri gs://my-pulumi-state-bucket
+```
+
+#### Azure Blob Storage
+
+Assuming you normally run `pulumi login az://my-pulumi-state-account/my-pulumi-state-container` to connect to your state backend, then run:
+
+```bash
+AZURE_STORAGE_CONNECTION_STRING=xxx pulumi-ui up --state-uri az://my-pulumi-state-account/my-pulumi-state-container
+```
+
+## Contributing
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md)
