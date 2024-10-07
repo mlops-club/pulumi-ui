@@ -18,9 +18,6 @@ const WelcomePage: React.FC = () => {
                 Welcome to
             </Typography>
             <img src="/logo.png" alt="Pulumi UI Logo" style={{ maxWidth: '300px', marginBottom: '20px' }} />
-            <Typography variant="h4" gutterBottom>
-                Pulumi UI
-            </Typography>
             <Typography variant="subtitle1">
                 by{' '}
                 <Link

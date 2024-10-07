@@ -155,7 +155,11 @@ const StackView: React.FC = () => {
     const renderReadme = () => {
         if (stack && stack.outputs && stack.outputs.readme) {
             return (
-                <Box sx={{ p: 2 }}>
+                <Box sx={{
+                    p: 2,
+                    height: 'calc(100% - 48px)', // Subtract the height of the tabs
+                    overflowY: 'auto' // Enable vertical scrolling
+                }}>
                     <ReactMarkdown rehypePlugins={[rehypeRaw]}>{stack.outputs.readme}</ReactMarkdown>
                 </Box>
             );
@@ -168,7 +172,8 @@ const StackView: React.FC = () => {
                     justifyContent: 'center',
                     height: '100%',
                     textAlign: 'center',
-                    p: 3
+                    p: 3,
+                    overflowY: 'auto' // Enable vertical scrolling
                 }}>
                     <Typography variant="h6" gutterBottom>
                         <Link
@@ -228,7 +233,7 @@ const StackView: React.FC = () => {
     }
 
     return (
-        <Box sx={{ width: '100%', height: '100%' }}>
+        <Box sx={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
             <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                 <Tabs value={tabValue} onChange={handleTabChange}>
                     <Tab label="Overview" value="overview" disableRipple />
@@ -236,16 +241,16 @@ const StackView: React.FC = () => {
                     <Tab label="Resources" value="resources" disableRipple />
                 </Tabs>
             </Box>
-            <Box sx={{ p: 3, height: 'calc(100% - 48px)' }}>
+            <Box sx={{ flexGrow: 1, overflow: 'hidden' }}>
                 {tabValue === 'overview' && (
-                    <Box>
+                    <Box sx={{ height: '100%', overflowY: 'auto', p: 3 }}>
                         <h2>Overview</h2>
                         {/* Add overview content here */}
                     </Box>
                 )}
                 {tabValue === 'readme' && renderReadme()}
                 {tabValue === 'resources' && (
-                    <Box sx={{ height: '100%' }}>
+                    <Box sx={{ height: '100%', overflowY: 'auto' }}>
                         <Box sx={{ mb: 2 }}>
                             <ToggleButtonGroup
                                 value={resourceView}
