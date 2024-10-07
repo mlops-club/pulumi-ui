@@ -158,9 +158,27 @@ const StackView: React.FC = () => {
                 <Box sx={{
                     p: 2,
                     height: 'calc(100% - 48px)', // Subtract the height of the tabs
-                    overflowY: 'auto' // Enable vertical scrolling
+                    overflowY: 'auto', // Enable vertical scrolling
+                    overflowX: 'hidden', // Hide horizontal scrollbar
+                    maxWidth: '100%', // Ensure content doesn't exceed container width
                 }}>
-                    <ReactMarkdown rehypePlugins={[rehypeRaw]}>{stack.outputs.readme}</ReactMarkdown>
+                    <Box sx={{
+                        maxWidth: '100%', // Limit content width
+                        '& img': { maxWidth: '100%', height: 'auto' }, // Ensure images don't overflow
+                        '& pre': {
+                            overflowX: 'auto',
+                            maxWidth: '100%',
+                            whiteSpace: 'pre-wrap',
+                            wordWrap: 'break-word'
+                        }, // Handle code blocks
+                        '& table': {
+                            display: 'block',
+                            overflowX: 'auto',
+                            maxWidth: '100%'
+                        }, // Handle tables
+                    }}>
+                        <ReactMarkdown rehypePlugins={[rehypeRaw]}>{stack.outputs.readme}</ReactMarkdown>
+                    </Box>
                 </Box>
             );
         } else {
