@@ -8,9 +8,8 @@ import {
     TableCell,
     TableSortLabel,
     Paper,
-    Link
+    Link,
 } from '@mui/material';
-import { Link as RouterLink } from 'react-router-dom';
 import { Resource } from '../types';
 
 interface StackResourcesListViewProps {
@@ -20,6 +19,7 @@ interface StackResourcesListViewProps {
     onRequestSort: (property: keyof Resource) => void;
     projectName: string | undefined;
     stackName: string | undefined;
+    onResourceClick: (resource: Resource) => void;
 }
 
 const StackResourcesListView: React.FC<StackResourcesListViewProps> = ({
@@ -27,8 +27,7 @@ const StackResourcesListView: React.FC<StackResourcesListViewProps> = ({
     orderBy,
     order,
     onRequestSort,
-    projectName,
-    stackName
+    onResourceClick
 }) => {
     return (
         <TableContainer component={Paper}>
@@ -57,11 +56,20 @@ const StackResourcesListView: React.FC<StackResourcesListViewProps> = ({
                 </TableHead>
                 <TableBody>
                     {resources.map((resource) => (
-                        <TableRow key={resource.urn}>
+                        <TableRow
+                            key={resource.urn}
+                            onClick={() => onResourceClick(resource)}
+                            style={{ cursor: 'pointer' }}
+                        >
                             <TableCell>
                                 <Link
-                                    component={RouterLink}
-                                    to={`/projects/${projectName}/stacks/${stackName}/resources/${encodeURIComponent(resource.urn.split('::').pop() || '')}`}
+                                    component="button"
+                                    variant="body2"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        onResourceClick(resource);
+                                    }}
+                                    sx={{ textAlign: 'left' }}
                                 >
                                     {resource.type}
                                 </Link>

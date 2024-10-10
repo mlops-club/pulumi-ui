@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import dagre from 'dagre';
-import { ReactFlow, Node, Edge, Background, Controls, MiniMap, Position } from '@xyflow/react';
+import { ReactFlow, Background, Controls, MiniMap, Node, Edge, Position } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { Resource } from '../types';
 import CustomNode from './CustomNode';
@@ -8,12 +8,13 @@ import CustomNode from './CustomNode';
 interface StackResourcesGraphViewProps {
     resources: Resource[];
     onNodeClick: (resource: Resource) => void;
+    colorMode: 'light' | 'dark';
 }
 
 const nodeWidth = 220;
 const nodeHeight = 40;
 
-const StackResourcesGraphView: React.FC<StackResourcesGraphViewProps> = ({ resources, onNodeClick }) => {
+const StackResourcesGraphView: React.FC<StackResourcesGraphViewProps> = ({ resources, onNodeClick, colorMode }) => {
     const { nodes, edges } = useMemo(() => {
         const nodes: Node[] = resources.map((resource) => ({
             id: resource.urn,
@@ -67,6 +68,8 @@ const StackResourcesGraphView: React.FC<StackResourcesGraphViewProps> = ({ resou
 
     const nodeTypes = useMemo(() => ({ custom: CustomNode }), []);
 
+    const isDarkMode = colorMode === 'dark';
+
     return (
         <ReactFlow
             nodes={nodes}
@@ -75,7 +78,6 @@ const StackResourcesGraphView: React.FC<StackResourcesGraphViewProps> = ({ resou
             fitView
             minZoom={0.1}
             maxZoom={1.5}
-            defaultZoom={0.5}
             attributionPosition="bottom-left"
             onNodeClick={(event, node) => {
                 const resource = resources.find(r => r.urn === node.id);
@@ -83,8 +85,10 @@ const StackResourcesGraphView: React.FC<StackResourcesGraphViewProps> = ({ resou
                     onNodeClick(resource);
                 }
             }}
+            proOptions={{ hideAttribution: true }}
+            className={isDarkMode ? 'react-flow__container-dark' : ''}
         >
-            <Background />
+            <Background color={isDarkMode ? '#999' : '#aaa'} gap={16} />
             <Controls />
             <MiniMap />
         </ReactFlow>

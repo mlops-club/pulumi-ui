@@ -10,17 +10,6 @@ import {
     CircularProgress,
     Button,
     Link,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
-    Paper,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
 } from '@mui/material';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
@@ -30,6 +19,7 @@ import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import HomeIcon from '@mui/icons-material/Home';
 import DescriptionIcon from '@mui/icons-material/Description';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import StackResourcesGraphViewTab from './StackResourcesGraphViewTab';
 import StackResourcesListViewTab from './StackResourcesListViewTab';
 import ResourceView from './ResourceView';
@@ -38,12 +28,15 @@ import StackOverviewTab from './StackOverviewTab';
 type Order = 'asc' | 'desc';
 type TabValue = 'overview' | 'readme' | 'resources';
 
-const StackView: React.FC = () => {
-    const { projectName, stackName, tab, resourceName } = useParams<{ projectName?: string; stackName?: string; tab?: string; resourceName?: string }>();
+interface StackViewProps {
+    colorMode: 'light' | 'dark';
+}
 
+const StackView: React.FC<StackViewProps> = ({ colorMode }) => {
+    const { projectName, stackName, resourceName } = useParams<{ projectName?: string; stackName?: string; resourceName?: string }>();
+    const [searchParams, setSearchParams] = useSearchParams();
     const navigate = useNavigate();
     const location = useLocation();
-    const [searchParams] = useSearchParams();
     const [stack, setStack] = useState<Stack | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -52,7 +45,6 @@ const StackView: React.FC = () => {
     const [order, setOrder] = useState<Order>('asc');
     const [orderBy, setOrderBy] = useState<keyof Resource>('type');
     const [selectedResource, setSelectedResource] = useState<Resource | null>(null);
-    const [jsonDialogOpen, setJsonDialogOpen] = useState(false);
 
     const fetchStack = useCallback(async () => {
         if (!projectName || !stackName) return;
@@ -82,162 +74,186 @@ const StackView: React.FC = () => {
 
     useEffect(() => {
         if (resourceName && stack) {
-            const resource = stack.resources.find(r => r.urn.split('::').pop() === resourceName || r.urn === resourceName);
+            const resource = stack.resources.find(r => r.urn.split('::').pop() === resourceName);
             setSelectedResource(resource || null);
             setTabValue('resources');
         } else {
             setSelectedResource(null);
-        }
-    }, [resourceName, stack]);
-
-    useEffect(() => {
-        if (tab && ['overview', 'readme', 'resources'].includes(tab)) {
-            setTabValue(tab as TabValue);
-            if (tab === 'resources') {
-                const graphView = searchParams.get('graph_view');
-                setResourceView(graphView === 'true' ? 'graph' : 'list');
+            const tab = location.pathname.split('/').pop() as TabValue;
+            if (['overview', 'readme', 'resources'].includes(tab)) {
+                setTabValue(tab);
             }
-        } else if (!resourceName) {
-            navigate(`/projects/${projectName}/stacks/${stackName}/overview`, { replace: true });
         }
-    }, [tab, projectName, stackName, navigate, searchParams, resourceName]);
+        const graphView = searchParams.get('view');
+        setResourceView(graphView === 'graph' ? 'graph' : 'list');
+    }, [location, searchParams, resourceName, stack]);
 
-    const handleTabChange = useCallback((event: React.SyntheticEvent, newValue: TabValue) => {
-        const graphView = searchParams.get('graph_view');
-        const newPath = `/projects/${projectName}/stacks/${stackName}/${newValue}`;
-        if (newValue === 'resources' && graphView === 'true') {
-            navigate(`${newPath}?graph_view=true`);
-        } else {
-            navigate(newPath);
-        }
-    }, [navigate, projectName, stackName, searchParams]);
+    const handleTabChange = (event: React.SyntheticEvent, newValue: TabValue) => {
+        setTabValue(newValue);
+        navigate(`/projects/${projectName}/stacks/${stackName}/${newValue}`);
+    };
 
-    const handleResourceViewChange = useCallback((
+    const handleResourceViewChange = (
         event: React.MouseEvent<HTMLElement>,
         newView: 'list' | 'graph',
     ) => {
         if (newView !== null) {
             setResourceView(newView);
             const newSearchParams = new URLSearchParams(searchParams);
-            if (newView === 'graph') {
-                newSearchParams.set('graph_view', 'true');
-            } else {
-                newSearchParams.delete('graph_view');
-            }
-            navigate(`${location.pathname}?${newSearchParams.toString()}`, { replace: true });
+            newSearchParams.set('view', newView);
+            setSearchParams(newSearchParams);
         }
-    }, [navigate, location.pathname, searchParams]);
+    };
 
-    const handleRequestSort = useCallback((property: keyof Resource) => {
-        setOrder((prevOrder) => (orderBy === property && prevOrder === 'asc' ? 'desc' : 'asc'));
+    const handleBackToResourcesView = () => {
+        setSelectedResource(null);
+        navigate(`/projects/${projectName}/stacks/${stackName}/resources?view=${resourceView}`);
+    };
+
+    const handleRequestSort = (property: keyof Resource) => {
+        const isAsc = orderBy === property && order === 'asc';
+        const newOrder = isAsc ? 'desc' : 'asc';
+        setOrder(newOrder);
         setOrderBy(property);
-    }, [orderBy]);
+        const newSearchParams = new URLSearchParams(searchParams);
+        newSearchParams.set('order', newOrder);
+        newSearchParams.set('orderBy', property);
+        setSearchParams(newSearchParams);
+    };
 
     const sortedResources = useMemo(() => {
         if (!stack) return [];
-        const comparator = (a: Resource, b: Resource) => {
+        return [...stack.resources].sort((a, b) => {
             const aValue = a[orderBy];
             const bValue = b[orderBy];
             if (typeof aValue === 'string' && typeof bValue === 'string') {
                 return order === 'asc' ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
             }
             return 0;
-        };
-
-        return [...stack.resources].sort(comparator);
+        });
     }, [stack, order, orderBy]);
 
+    const handleResourceClick = (resource: Resource) => {
+        setSelectedResource(resource);
+        navigate(`/projects/${projectName}/stacks/${stackName}/resources/${encodeURIComponent(resource.urn.split('::').pop() || '')}`);
+    };
+
     const renderReadme = () => {
-        if (stack && stack.outputs && stack.outputs.readme) {
-            return (
-                <Box sx={{
-                    p: 2,
-                    height: 'calc(100% - 48px)', // Subtract the height of the tabs
-                    overflowY: 'auto', // Enable vertical scrolling
-                    overflowX: 'hidden', // Hide horizontal scrollbar
-                    maxWidth: '100%', // Ensure content doesn't exceed container width
-                }}>
+        return (
+            <Box sx={{
+                height: 'calc(100% - 48px)', // Subtract the height of the tabs
+                overflowY: 'auto',
+                p: 2,
+            }}>
+                {stack && stack.outputs && stack.outputs.readme ? (
                     <Box sx={{
-                        maxWidth: '100%', // Limit content width
-                        '& img': { maxWidth: '100%', height: 'auto' }, // Ensure images don't overflow
+                        width: '100%',
+                        maxWidth: '100%',
+                        '& img': { maxWidth: '100%', height: 'auto' },
                         '& pre': {
                             overflowX: 'auto',
                             maxWidth: '100%',
                             whiteSpace: 'pre-wrap',
                             wordWrap: 'break-word'
-                        }, // Handle code blocks
+                        },
                         '& table': {
                             display: 'block',
                             overflowX: 'auto',
                             maxWidth: '100%'
-                        }, // Handle tables
+                        },
                     }}>
                         <ReactMarkdown rehypePlugins={[rehypeRaw]}>{stack.outputs.readme}</ReactMarkdown>
                     </Box>
-                </Box>
-            );
-        } else {
-            return (
-                <Box sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    height: '100%',
-                    textAlign: 'center',
-                    p: 3,
-                    overflowY: 'auto' // Enable vertical scrolling
-                }}>
-                    <Typography variant="h6" gutterBottom>
-                        <Link
-                            href="https://www.pulumi.com/docs/pulumi-cloud/projects-and-stacks/#stack-readme"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            sx={{ display: 'inline-flex', alignItems: 'center' }}
-                        >
-                            Stack README's
-                            <OpenInNewIcon sx={{ ml: 0.5, fontSize: '1rem' }} />
-                        </Link>{' '}
-                        are documentation for your Stack. README templates can reference Stack outputs and resource properties.
-                    </Typography>
-                    <DescriptionIcon sx={{ fontSize: 60, my: 2 }} />
-                    <Typography variant="h5" gutterBottom>
-                        No README
-                    </Typography>
-                    <Typography>
-                        There is no Stack README. To create one, add an output resource to your Stack called 'readme'.
-                    </Typography>
-                </Box>
-            );
-        }
+                ) : (
+                    <Box sx={{
+                        textAlign: 'center',
+                        p: 3,
+                    }}>
+                        <Typography variant="h6" gutterBottom>
+                            <Link
+                                href="https://www.pulumi.com/docs/pulumi-cloud/projects-and-stacks/#stack-readme"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                sx={{ display: 'inline-flex', alignItems: 'center' }}
+                            >
+                                Stack README's
+                                <OpenInNewIcon sx={{ ml: 0.5, fontSize: '1rem' }} />
+                            </Link>{' '}
+                            are documentation for your Stack. README templates can reference Stack outputs and resource properties.
+                        </Typography>
+                        <DescriptionIcon sx={{ fontSize: 60, my: 2 }} />
+                        <Typography variant="h5" gutterBottom>
+                            No README
+                        </Typography>
+                        <Typography>
+                            There is no Stack README. To create one, add an output resource to your Stack called 'readme'.
+                        </Typography>
+                    </Box>
+                )}
+            </Box>
+        );
     };
 
     const renderResourcesTab = () => {
-        if (resourceName && selectedResource) {
-            return <ResourceView resource={selectedResource} stack={stack!} />;
-        }
-
-        if (resourceView === 'list') {
+        if (selectedResource) {
             return (
-                <StackResourcesListViewTab
-                    resources={sortedResources}
-                    orderBy={orderBy}
-                    order={order}
-                    onRequestSort={handleRequestSort}
-                    projectName={projectName}
-                    stackName={stackName}
-                />
-            );
-        } else {
-            return (
-                <Box sx={{ height: 'calc(100% - 40px)' }}>
-                    <StackResourcesGraphViewTab
-                        resources={stack?.resources || []}
-                        onNodeClick={(resource: Resource) => navigate(`/projects/${projectName}/stacks/${stackName}/resources/${encodeURIComponent(resource.urn.split('::').pop() || '')}`)}
-                    />
+                <Box sx={{ height: 'calc(100% - 48px)', overflowY: 'auto' }}>
+                    <Box sx={{ mt: 2, mb: 2 }}>
+                        <Link
+                            component="button"
+                            variant="body2"
+                            onClick={handleBackToResourcesView}
+                            sx={{ display: 'flex', alignItems: 'center' }}
+                        >
+                            <ArrowBackIcon sx={{ mr: 1 }} />
+                            Back to {resourceView === 'list' ? 'list' : 'graph'} view
+                        </Link>
+                    </Box>
+                    <ResourceView resource={selectedResource} stack={stack!} />
                 </Box>
             );
         }
+
+        return (
+            <Box sx={{ height: 'calc(100% - 48px)', display: 'flex', flexDirection: 'column' }}>
+                <Box sx={{ mb: 2 }}>
+                    <ToggleButtonGroup
+                        value={resourceView}
+                        exclusive
+                        onChange={handleResourceViewChange}
+                        aria-label="resource view"
+                    >
+                        <ToggleButton value="list" aria-label="list view">
+                            <ListIcon sx={{ mr: 1 }} />
+                            <Typography>List View</Typography>
+                        </ToggleButton>
+                        <ToggleButton value="graph" aria-label="graph view">
+                            <AccountTreeIcon sx={{ mr: 1 }} />
+                            <Typography>Graph View</Typography>
+                        </ToggleButton>
+                    </ToggleButtonGroup>
+                </Box>
+                <Box sx={{ flexGrow: 1, overflowY: 'auto' }}>
+                    {resourceView === 'list' ? (
+                        <StackResourcesListViewTab
+                            resources={sortedResources}
+                            orderBy={orderBy}
+                            order={order}
+                            onRequestSort={handleRequestSort}
+                            projectName={projectName}
+                            stackName={stackName}
+                            onResourceClick={handleResourceClick}
+                        />
+                    ) : (
+                        <StackResourcesGraphViewTab
+                            resources={stack?.resources || []}
+                            onNodeClick={handleResourceClick}
+                            colorMode={colorMode}
+                        />
+                    )}
+                </Box>
+            </Box>
+        );
     };
 
     const renderContent = () => {
@@ -286,30 +302,7 @@ const StackView: React.FC = () => {
                 <Box sx={{ flexGrow: 1, overflow: 'hidden' }}>
                     {tabValue === 'overview' && <StackOverviewTab stack={stack} />}
                     {tabValue === 'readme' && renderReadme()}
-                    {tabValue === 'resources' && (
-                        <Box sx={{ height: '100%', overflowY: 'auto' }}>
-                            {!resourceName && (
-                                <Box sx={{ mb: 2 }}>
-                                    <ToggleButtonGroup
-                                        value={resourceView}
-                                        exclusive
-                                        onChange={handleResourceViewChange}
-                                        aria-label="resource view"
-                                    >
-                                        <ToggleButton value="list" aria-label="list view" disableRipple>
-                                            <ListIcon sx={{ mr: 1 }} />
-                                            <Typography>List View</Typography>
-                                        </ToggleButton>
-                                        <ToggleButton value="graph" aria-label="graph view" disableRipple>
-                                            <AccountTreeIcon sx={{ mr: 1 }} />
-                                            <Typography>Graph View</Typography>
-                                        </ToggleButton>
-                                    </ToggleButtonGroup>
-                                </Box>
-                            )}
-                            {renderResourcesTab()}
-                        </Box>
-                    )}
+                    {tabValue === 'resources' && renderResourcesTab()}
                 </Box>
             </Box>
         );

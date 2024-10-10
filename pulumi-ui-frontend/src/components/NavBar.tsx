@@ -10,18 +10,22 @@ import {
     ListItemText,
     Tooltip,
     Box,
-    Divider
+    Divider,
 } from '@mui/material';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import LayersIcon from '@mui/icons-material/Layers';
 import HomeIcon from '@mui/icons-material/Home';
+import Brightness4Icon from '@mui/icons-material/Brightness4';
+import Brightness7Icon from '@mui/icons-material/Brightness7';
 
 interface NavBarProps {
     mainDrawerOpen: boolean;
     toggleMainDrawer: () => void;
     toggleProjectsDrawer: () => void;
     projectsDrawerOpen: boolean;
+    darkMode: boolean;
+    toggleColorMode: () => void;
 }
 
 const mainDrawerWidthOpen = 180;
@@ -32,6 +36,8 @@ const NavBar: React.FC<NavBarProps> = ({
     toggleMainDrawer,
     toggleProjectsDrawer,
     projectsDrawerOpen,
+    darkMode,
+    toggleColorMode,
 }) => {
     const navigate = useNavigate();
 
@@ -78,7 +84,7 @@ const NavBar: React.FC<NavBarProps> = ({
                                 onClick={() => navigate('/')}
                                 disableRipple
                                 sx={{
-                                    justifyContent: 'center',
+                                    justifyContent: mainDrawerOpen ? 'initial' : 'center',
                                     minHeight: 48,
                                     px: 2.5,
                                 }}
@@ -102,7 +108,7 @@ const NavBar: React.FC<NavBarProps> = ({
                                 selected={projectsDrawerOpen}
                                 disableRipple
                                 sx={{
-                                    justifyContent: 'center',
+                                    justifyContent: mainDrawerOpen ? 'initial' : 'center',
                                     minHeight: 48,
                                     px: 2.5,
                                     '&.Mui-selected': {
@@ -128,12 +134,36 @@ const NavBar: React.FC<NavBarProps> = ({
                 </List>
             </Box>
             <Divider />
-            <Box sx={{ p: 1, display: 'flex', justifyContent: mainDrawerOpen ? 'flex-end' : 'center' }}>
+            <Box sx={{ p: 1, display: 'flex', flexDirection: 'column', alignItems: mainDrawerOpen ? 'flex-start' : 'center' }}>
+                <Tooltip title={darkMode ? "Switch to light mode" : "Switch to dark mode"} placement="right" arrow>
+                    <ListItemButton
+                        onClick={toggleColorMode}
+                        disableRipple
+                        sx={{
+                            justifyContent: mainDrawerOpen ? 'initial' : 'center',
+                            minHeight: 48,
+                            px: 2.5,
+                            width: '100%',
+                        }}
+                    >
+                        <ListItemIcon sx={{
+                            minWidth: 0,
+                            mr: mainDrawerOpen ? 3 : 'auto',
+                            justifyContent: 'center',
+                            color: 'inherit',
+                        }}>
+                            {darkMode ? <Brightness7Icon /> : <Brightness4Icon />}
+                        </ListItemIcon>
+                        {mainDrawerOpen && <ListItemText primary={darkMode ? "Light" : "Dark"} sx={{ opacity: 1 }} />}
+                    </ListItemButton>
+                </Tooltip>
                 <IconButton
                     onClick={toggleMainDrawer}
                     disableRipple
                     sx={{
                         width: mainDrawerOpen ? 'auto' : '100%',
+                        mt: 1,
+                        alignSelf: mainDrawerOpen ? 'flex-end' : 'center',
                     }}
                 >
                     {mainDrawerOpen ? <ChevronLeftIcon /> : <ChevronRightIcon />}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
     Box,
     Typography,
@@ -17,6 +17,7 @@ import {
     IconButton,
     Tooltip,
     ToggleButton,
+    useTheme,
 } from '@mui/material';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import CloseIcon from '@mui/icons-material/Close';
@@ -27,7 +28,7 @@ import FullscreenExitIcon from '@mui/icons-material/FullscreenExit';
 import { Stack } from '../types';
 import { Light as SyntaxHighlighter } from 'react-syntax-highlighter';
 import json from 'react-syntax-highlighter/dist/esm/languages/hljs/json';
-import { docco } from 'react-syntax-highlighter/dist/esm/styles/hljs';
+import { docco, atomOneDark } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 
 SyntaxHighlighter.registerLanguage('json', json);
 
@@ -40,6 +41,7 @@ const StackOverviewTab: React.FC<StackOverviewTabProps> = ({ stack }) => {
     const [copySuccess, setCopySuccess] = useState(false);
     const [wrapText, setWrapText] = useState(false);
     const [isFullScreen, setIsFullScreen] = useState(false);
+    const theme = useTheme();
 
     const isUrl = (str: string) => {
         try {
@@ -83,6 +85,10 @@ const StackOverviewTab: React.FC<StackOverviewTabProps> = ({ stack }) => {
         setIsFullScreen(!isFullScreen);
     };
 
+    const syntaxTheme = useMemo(() => {
+        return theme.palette.mode === 'dark' ? atomOneDark : docco;
+    }, [theme.palette.mode]);
+
     const renderJsonDialog = () => {
         return (
             <Dialog
@@ -91,6 +97,12 @@ const StackOverviewTab: React.FC<StackOverviewTabProps> = ({ stack }) => {
                 maxWidth={isFullScreen ? false : "md"}
                 fullWidth
                 fullScreen={isFullScreen}
+                PaperProps={{
+                    style: {
+                        backgroundColor: theme.palette.background.paper,
+                        color: theme.palette.text.primary,
+                    },
+                }}
             >
                 <DialogTitle>
                     Stack JSON
@@ -102,7 +114,7 @@ const StackOverviewTab: React.FC<StackOverviewTabProps> = ({ stack }) => {
                                 position: 'absolute',
                                 right: 48,
                                 top: 8,
-                                color: (theme) => theme.palette.grey[500],
+                                color: theme.palette.text.secondary,
                             }}
                         >
                             {isFullScreen ? <FullscreenExitIcon /> : <FullscreenIcon />}
@@ -116,7 +128,7 @@ const StackOverviewTab: React.FC<StackOverviewTabProps> = ({ stack }) => {
                                 position: 'absolute',
                                 right: 8,
                                 top: 8,
-                                color: (theme) => theme.palette.grey[500],
+                                color: theme.palette.text.secondary,
                             }}
                         >
                             <CloseIcon />
@@ -133,6 +145,7 @@ const StackOverviewTab: React.FC<StackOverviewTabProps> = ({ stack }) => {
                                     right: 8,
                                     top: 8,
                                     zIndex: 1,
+                                    color: theme.palette.text.secondary,
                                 }}
                             >
                                 <ContentCopyIcon />
@@ -148,6 +161,11 @@ const StackOverviewTab: React.FC<StackOverviewTabProps> = ({ stack }) => {
                                     right: 48,
                                     top: 8,
                                     zIndex: 1,
+                                    color: theme.palette.text.secondary,
+                                    borderColor: theme.palette.divider,
+                                    '&.Mui-selected': {
+                                        backgroundColor: theme.palette.action.selected,
+                                    },
                                 }}
                             >
                                 <WrapTextIcon />
@@ -155,13 +173,15 @@ const StackOverviewTab: React.FC<StackOverviewTabProps> = ({ stack }) => {
                         </Tooltip>
                         <SyntaxHighlighter
                             language="json"
-                            style={docco}
+                            style={syntaxTheme}
                             customStyle={{
                                 margin: 0,
                                 padding: '16px',
                                 maxHeight: isFullScreen ? 'none' : '60vh',
                                 height: isFullScreen ? 'calc(100vh - 100px)' : 'auto',
                                 overflow: 'auto',
+                                backgroundColor: theme.palette.background.paper,
+                                color: theme.palette.text.primary,
                             }}
                             wrapLongLines={wrapText}
                         >
@@ -178,11 +198,12 @@ const StackOverviewTab: React.FC<StackOverviewTabProps> = ({ stack }) => {
             <Typography variant="h4" gutterBottom>Overview</Typography>
 
             <Button
-                variant="contained"
+                variant="outlined"
                 onClick={() => setJsonDialogOpen(true)}
                 sx={{ mb: 3 }}
+                disableRipple
             >
-                View JSON
+                View Stack JSON
             </Button>
 
             <Typography variant="h6" gutterBottom>Configuration</Typography>

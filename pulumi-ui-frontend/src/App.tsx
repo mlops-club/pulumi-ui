@@ -1,48 +1,30 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { HashRouter as Router, Route, Routes, Navigate, useLocation, useParams, useNavigate } from 'react-router-dom';
-import { Box, CssBaseline } from '@mui/material';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { HashRouter as Router, Routes, Route } from 'react-router-dom';
+import { ThemeProvider, createTheme, CssBaseline, useMediaQuery } from '@mui/material';
 import NavBar from './components/NavBar';
 import StackExplorerBar from './components/StackExplorerBar';
-import StackView from './components/StackView';
 import WelcomePage from './components/WelcomePage';
+import StackView from './components/StackView';
 import { Project, Stack } from './types';
 
 const App: React.FC = () => {
-  const [mainDrawerOpen, setMainDrawerOpen] = useState(false);
-  const [projectsDrawerOpen, setProjectsDrawerOpen] = useState(false);
   const [projects, setProjects] = useState<Project[]>([]);
-  const [selectedStack, setSelectedStack] = useState<Stack | null>(null);
+  const [mainDrawerOpen, setMainDrawerOpen] = useState(true);
+  const [projectsDrawerOpen, setProjectsDrawerOpen] = useState(true);
   const [expandedProjects, setExpandedProjects] = useState<Set<string>>(new Set());
+  const [darkMode, setDarkMode] = useState<boolean>(() => {
+    const savedMode = localStorage.getItem('darkMode');
+    return savedMode ? JSON.parse(savedMode) : false;
+  });
+  const [selectedStack, setSelectedStack] = useState<Stack | null>(null);
 
-  const toggleMainDrawer = useCallback(() => setMainDrawerOpen(prev => !prev), []);
-  const toggleProjectsDrawer = useCallback(() => setProjectsDrawerOpen(prev => !prev), []);
+  const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
 
-  const toggleProjectExpansion = useCallback((projectName: string) => {
-    setExpandedProjects(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(projectName)) {
-        newSet.delete(projectName);
-      } else {
-        newSet.add(projectName);
-      }
-      return newSet;
-    });
+  useEffect(() => {
+    fetchProjects();
   }, []);
 
-  const fetchStack = useCallback(async (projectName: string, stackName: string) => {
-    try {
-      const response = await fetch(`/api/projects/${projectName}/stacks/${stackName}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch stack');
-      }
-      const data = await response.json();
-      setSelectedStack(data);
-    } catch (error) {
-      console.error('Error fetching stack:', error);
-    }
-  }, []);
-
-  const fetchProjects = useCallback(async () => {
+  const fetchProjects = async () => {
     try {
       const response = await fetch('/api/projects');
       if (!response.ok) {
@@ -53,102 +35,94 @@ const App: React.FC = () => {
     } catch (error) {
       console.error('Error fetching projects:', error);
     }
+  };
+
+  const toggleMainDrawer = () => {
+    setMainDrawerOpen(!mainDrawerOpen);
+  };
+
+  const toggleProjectsDrawer = () => {
+    setProjectsDrawerOpen(!projectsDrawerOpen);
+  };
+
+  const toggleProjectExpansion = (projectName: string) => {
+    setExpandedProjects((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(projectName)) {
+        newSet.delete(projectName);
+      } else {
+        newSet.add(projectName);
+      }
+      return newSet;
+    });
+  };
+
+  const toggleColorMode = useCallback(() => {
+    setDarkMode((prevMode) => {
+      const newMode = !prevMode;
+      localStorage.setItem('darkMode', JSON.stringify(newMode));
+      return newMode;
+    });
   }, []);
 
-  useEffect(() => {
-    fetchProjects();
-  }, [fetchProjects]);
-
-  return (
-    <Router>
-      <AppContent
-        mainDrawerOpen={mainDrawerOpen}
-        toggleMainDrawer={toggleMainDrawer}
-        projectsDrawerOpen={projectsDrawerOpen}
-        toggleProjectsDrawer={toggleProjectsDrawer}
-        projects={projects}
-        selectedStack={selectedStack}
-        expandedProjects={expandedProjects}
-        toggleProjectExpansion={toggleProjectExpansion}
-        fetchStack={fetchStack}
-        setProjectsDrawerOpen={setProjectsDrawerOpen}
-        setExpandedProjects={setExpandedProjects}
-      />
-    </Router>
-  );
-}
-
-function AppContent({
-  mainDrawerOpen,
-  toggleMainDrawer,
-  projectsDrawerOpen,
-  toggleProjectsDrawer,
-  projects,
-  selectedStack,
-  expandedProjects,
-  toggleProjectExpansion,
-  fetchStack,
-  setProjectsDrawerOpen,
-  setExpandedProjects
-}: {
-  mainDrawerOpen: boolean;
-  toggleMainDrawer: () => void;
-  projectsDrawerOpen: boolean;
-  toggleProjectsDrawer: () => void;
-  projects: Project[];
-  selectedStack: Stack | null;
-  expandedProjects: Set<string>;
-  toggleProjectExpansion: (projectName: string) => void;
-  fetchStack: (projectName: string, stackName: string) => Promise<void>;
-  setProjectsDrawerOpen: (open: boolean) => void;
-  setExpandedProjects: React.Dispatch<React.SetStateAction<Set<string>>>;
-}) {
-  const location = useLocation();
-  const params = useParams<{ projectName?: string; stackName?: string; tab?: string }>();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    const pathParts = location.pathname.split('/');
-    if (pathParts[1] === 'projects' && pathParts[3] === 'stacks') {
-      const projectName = pathParts[2];
-      const stackName = pathParts[4];
-      setProjectsDrawerOpen(true);
-      setExpandedProjects(prev => new Set(prev).add(projectName));
-      fetchStack(projectName, stackName);
-      if (!pathParts[5] || !['overview', 'readme', 'resources'].includes(pathParts[5])) {
-        navigate(`/projects/${projectName}/stacks/${stackName}/overview`, { replace: true });
+  const fetchStack = async (projectName: string, stackName: string) => {
+    try {
+      const response = await fetch(`/api/projects/${projectName}/stacks/${stackName}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch stack');
       }
+      const data = await response.json();
+      setSelectedStack(data);
+    } catch (error) {
+      console.error('Error fetching stack:', error);
     }
-  }, [location, setProjectsDrawerOpen, setExpandedProjects, fetchStack, navigate]);
+  };
+
+  const theme = useMemo(() => {
+    return createTheme({
+      palette: {
+        mode: darkMode ? 'dark' : 'light',
+      },
+    });
+  }, [darkMode]);
 
   return (
-    <Box sx={{ display: 'flex', height: '100vh' }}>
+    <ThemeProvider theme={theme}>
       <CssBaseline />
-      <NavBar
-        mainDrawerOpen={mainDrawerOpen}
-        toggleMainDrawer={toggleMainDrawer}
-        toggleProjectsDrawer={toggleProjectsDrawer}
-        projectsDrawerOpen={projectsDrawerOpen}
-      />
-      <StackExplorerBar
-        projects={projects}
-        selectedStack={selectedStack}
-        projectsDrawerOpen={projectsDrawerOpen}
-        mainDrawerOpen={mainDrawerOpen}
-        expandedProjects={expandedProjects}
-        toggleProjectExpansion={toggleProjectExpansion}
-        fetchStack={fetchStack}
-      />
-      <Box component="main" sx={{ flexGrow: 1, height: '100%', overflow: 'hidden' }}>
-        <Routes>
-          <Route path="/" element={<WelcomePage />} />
-          <Route path="/projects/:projectName/stacks/:stackName" element={<Navigate to="overview" replace />} />
-          <Route path="/projects/:projectName/stacks/:stackName/:tab" element={<StackView />} />
-          <Route path="/projects/:projectName/stacks/:stackName/resources/:resourceName" element={<StackView />} />
-        </Routes>
-      </Box>
-    </Box>
+      <Router>
+        <div style={{ display: 'flex' }}>
+          <NavBar
+            mainDrawerOpen={mainDrawerOpen}
+            toggleMainDrawer={toggleMainDrawer}
+            toggleProjectsDrawer={toggleProjectsDrawer}
+            projectsDrawerOpen={projectsDrawerOpen}
+            darkMode={darkMode}
+            toggleColorMode={toggleColorMode}
+          />
+          <StackExplorerBar
+            projects={projects}
+            selectedStack={selectedStack}
+            projectsDrawerOpen={projectsDrawerOpen}
+            mainDrawerOpen={mainDrawerOpen}
+            expandedProjects={expandedProjects}
+            toggleProjectExpansion={toggleProjectExpansion}
+            fetchStack={fetchStack}
+          />
+          <main style={{ flexGrow: 1, padding: '20px', height: '100vh', overflowY: 'auto' }}>
+            <Routes>
+              <Route path="/" element={<WelcomePage />} />
+              <Route
+                path="/projects/:projectName/stacks/:stackName/*"
+                element={<StackView colorMode={darkMode ? 'dark' : 'light'} />} />
+              <Route
+                path="/projects/:projectName/stacks/:stackName/resources/:resourceName"
+                element={<StackView colorMode={darkMode ? 'dark' : 'light'} />} />
+            </Routes>
+          </main>
+        </div>
+      </Router>
+    </ThemeProvider>
   );
-}
+};
 
 export default App;

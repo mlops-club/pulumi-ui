@@ -10,8 +10,9 @@ const WelcomePage: React.FC = () => {
                 flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
-                height: '100%',
+                height: '100vh',
                 textAlign: 'center',
+                padding: 3,
             }}
         >
             <Typography variant="h4" gutterBottom>
