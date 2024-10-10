@@ -138,7 +138,7 @@ const StackResourcesGraphView: React.FC<StackResourcesGraphViewProps> = ({ resou
                                     <div>
                                         {edge.data?.relationships.map((rel, index) => (
                                             <div key={index}>
-                                                {`${edge.source.split('::').pop()}.${rel.input} <-- ${edge.target.split('::').pop()}.${rel.output}: ${rel.value}`}
+                                                {`${edge.source.split('::').pop()}.${rel.input} depends on ${edge.target.split('::').pop()}.${rel.output} (${rel.value})`}
                                             </div>
                                         ))}
                                     </div>
@@ -146,13 +146,34 @@ const StackResourcesGraphView: React.FC<StackResourcesGraphViewProps> = ({ resou
                                 placement="top"
                                 open={selectedEdge === edge.id}
                                 onClose={() => setSelectedEdge(null)}
+                                PopperProps={{
+                                    anchorEl: document.getElementById(edge.id),
+                                    modifiers: [
+                                        {
+                                            name: 'offset',
+                                            options: {
+                                                offset: [0, -10],
+                                            },
+                                        },
+                                    ],
+                                }}
                             >
                                 <div
+                                    id={edge.id}
                                     style={{
                                         position: 'absolute',
                                         transform: `translate(-50%, -50%) translate(${edge.sourceX}px,${edge.sourceY}px)`,
                                         fontSize: 12,
                                         pointerEvents: 'all',
+                                        width: '20px',
+                                        height: '20px',
+                                        borderRadius: '50%',
+                                        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                                        color: 'white',
+                                        display: 'flex',
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                        cursor: 'pointer',
                                     }}
                                     onClick={(event) => {
                                         event.stopPropagation();

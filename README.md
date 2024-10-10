@@ -1,6 +1,6 @@
 <p align="center">
-    <img src="https://github.com/mlops-club/pulumi-ui/blob/main/docs/pulumi-ui-logo.png?raw=true" width="200px">
-    <h3 align="center">pulumi-ui</h3>
+    <img src="https://raw.githubusercontent.com/mlops-club/pulumi-ui/0fbe71fcb32310e63a0a033268b02b3b3802445f/pulumi-ui-frontend/public/logo-slim.png" width="200px">
+    <!-- <h3 align="center">pulumi-ui</h3> -->
 </p>
 
 <p align="center">

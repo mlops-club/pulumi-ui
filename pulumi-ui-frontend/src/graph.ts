@@ -124,8 +124,8 @@ function createDependencyGraph(resources: Resource[]): GraphData {
     dependencies.forEach((dep) => {
         edges.push({
             id: `${dep.source}-${dep.target}`,
-            source: dep.source,
-            target: dep.target,
+            source: dep.target, // Swap source and target
+            target: dep.source, // Swap source and target
             type: 'smoothstep',
             markerEnd: { type: MarkerType.ArrowClosed },
             data: { relationships: dep.relationships },
@@ -166,17 +166,17 @@ function findAllDependencies(resources: Resource[]): DependencyInfo[] {
                 const sourceResource = resources[i];
                 const targetResource = resources[j];
 
-                const arnDependencies = findArnDependencies(sourceResource, targetResource);
-                const idDependencies = findIdDependencies(sourceResource, targetResource);
-                const urlDependencies = findUrlDependencies(sourceResource, targetResource);
+                const relationships = [
+                    ...findArnDependencies(sourceResource, targetResource),
+                    ...findIdDependencies(sourceResource, targetResource),
+                    ...findUrlDependencies(sourceResource, targetResource)
+                ];
 
-                const allDependencies = [...arnDependencies, ...idDependencies, ...urlDependencies];
-
-                if (allDependencies.length > 0) {
+                if (relationships.length > 0) {
                     dependencies.push({
                         source: sourceResource.urn,
                         target: targetResource.urn,
-                        relationships: allDependencies,
+                        relationships,
                     });
                 }
             }
