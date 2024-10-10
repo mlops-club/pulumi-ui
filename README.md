@@ -20,7 +20,7 @@
   <a href="https://github.com/mlops-club/pyprojen/commits/main">
     <img src="https://img.shields.io/github/commit-activity/w/mlops-club/pulumi-ui?style=for-the-badge&logo=github" alt="Commit activity">
   </a>
-  
+
 </p>
 
 <br/>
@@ -37,7 +37,7 @@ The philosophical scope of this project includes tools, guides, or any resources
 
 ### Launch the UI
 
-Launch the UI using your Pulumi state backend. 
+Launch the UI using your Pulumi state backend.
 
 These examples assume your state is located in `~/.pulumi` which is the default location used when you run `pulumi login --local`.
 
@@ -97,13 +97,13 @@ AZURE_STORAGE_CONNECTION_STRING=xxx pulumi-ui up --state-uri az://my-pulumi-stat
 
 ## Why does this project exist?
 
-Pulumi is a great IaC tool. 
+Pulumi is a great IaC tool.
 
 It's open source. It uses *real code* unlike Terraform and CloudFormation. It can deploy resources across multiple clouds, unlike AWS CDK.
 
 However, coming from "free" IaC tools like CloudFormation and AWS CDK, Pulumi Cloud's pricing of $1.10/resource/mo for teams larger than 10 people can be a tough pill to swallow.
 
-We support the company behind Pulumi. Pulumi leads the way in IaC innovation, and it takes money to do that. 
+We support the company behind Pulumi. Pulumi leads the way in IaC innovation, and it takes money to do that.
 
 We hope for this project to increase the size and passion of the Pulumi community, bringing them more contributors and customers.
 
@@ -111,7 +111,7 @@ If engineers can use this tool to find initial success self-hosting Pulumi, they
 
 ## Contributing
 
-We would LOVE to have you contribute! 
+We would LOVE to have you contribute!
 
 Guides, docs, examples, tests, features, hype, IaC to help folks deploy this themselves. All of it.
 

@@ -91,7 +91,7 @@ uvicorn pulumi_ui.main:app --reload
 > Assumes there is a `pulumi-ui` AWS profile available.
 
 ```bash
-AWS_PROFILE=pulumi-ui AWS_REGION=us-west-2 pulumi login --state-uri s3://mlops-club-pulumi-state 
+AWS_PROFILE=pulumi-ui AWS_REGION=us-west-2 pulumi login --state-uri s3://mlops-club-pulumi-state
 ```
 
 The Pulumi Playground is used to generate sample Pulumi state for development and testing.
@@ -175,10 +175,10 @@ Stack View
          - reaches out to the backend api. Mutates the JSON. Adds a tag.
    - [ ] Resources
      - [ ] Has 2 tabs
-         - [ ] **1. Table View,** 
+         - [ ] **1. Table View,**
            - 2 columns
              - [ ] icon (show svg icon of resource, or fall back to provider if not available, or fall back to blank)
-             - [ ] Type, 
+             - [ ] Type,
              - [ ] Name
            - [ ] Clicking a row or a node in the graph should show a "resource view"
              - [ ] Overview table
@@ -187,7 +187,7 @@ Stack View
                  - URN
                  - Stack Version
              - [ ] Outputs - 2 cols. Key/value for each output. Shows "No Outputs" and an icon if there are none.
-             - [ ] Children - Table of same shape as the resources table, but limited to the children. 
+             - [ ] Children - Table of same shape as the resources table, but limited to the children.
          - [ ] **2. Graph View** - Shows the React flow component.
             - [x] each node should show the resource urn, abbreviated if longer than 25 characters
             - [ ] When a resource node clicked, takes you to a resource view
@@ -195,5 +195,3 @@ Stack View
             - [x] Child resources display to the right and vertically stacked
             - [ ] The expand/collapse action should be animated, like in Pulumi Cloud
             - [ ] Icon System: Each graph node should have an icon
-
-   

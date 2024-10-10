@@ -77,7 +77,7 @@ function build:frontend {
 function build {
     # Build frontend
     (cd "$FRONTEND_DIR" && npm run build)
-    
+
     # Copy built files to the backend static folder
     mkdir -p "$BACKEND_DIR/src/pulumi_ui/static"
     cp -r "$FRONTEND_DIR/dist/"* "$BACKEND_DIR/src/pulumi_ui/static/"

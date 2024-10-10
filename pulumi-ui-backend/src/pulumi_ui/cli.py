@@ -4,7 +4,6 @@ from typer import Typer, Option
 
 from typing import Optional
 from pulumi_ui.settings import Settings
-from pulumi_ui.pulumi_state import list_projects
 import typer
 
 from rich import print

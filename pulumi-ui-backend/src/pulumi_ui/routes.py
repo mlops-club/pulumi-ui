@@ -1,12 +1,9 @@
 from fastapi import APIRouter, Request, HTTPException
 from pulumi_ui.schemas import Stack, Project
 from typing import List
-from datetime import datetime
-import json
 from pathlib import Path
 from pulumi_ui.settings import Settings
 from pulumi_ui.pulumi_state import list_projects, get_stack
-from loguru import logger
 
 THIS_DIR = Path(__file__).parent
 

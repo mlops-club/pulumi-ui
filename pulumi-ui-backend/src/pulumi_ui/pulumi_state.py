@@ -4,13 +4,12 @@ from collections import defaultdict
 from pulumi_ui.schemas import StackInfo, Project, Stack, Resource
 from typing import List
 import json
-import os
 from loguru import logger
 
 def get_path(uri: str) -> Path | CloudPath:
     if uri.startswith(('s3://', 'az://', 'gs://')):
         return CloudPath(uri)
-    
+
     uri = uri.replace("file://", "")
     uri = uri.replace("~", str(Path.home()))
     return Path(uri)
@@ -35,21 +34,21 @@ def list_projects(state_uri: str) -> List[Project]:
 def get_stack(state_uri: str, project_name: str, stack_name: str) -> Stack:
     base_path: Path | CloudPath = get_path(state_uri)
     stack_path = base_path / f".pulumi/stacks/{project_name}/{stack_name}.json"
-    
+
     if isinstance(base_path, CloudPath):
         stack_json = json.loads(stack_path.read_text())
     else:
         with open(stack_path, 'r') as f:
             stack_json = json.load(f)
-    
+
     resources = [Resource(**r) for r in stack_json['checkpoint']['latest']['resources']]
-    
+
     outputs = {}
     for resource in resources:
         if resource.type == "pulumi:pulumi:Stack":
             outputs = resource.outputs or {}
             break
-    
+
     return Stack(
         name=stack_name,
         resources=resources,

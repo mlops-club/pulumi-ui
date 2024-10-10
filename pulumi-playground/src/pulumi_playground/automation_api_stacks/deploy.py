@@ -69,7 +69,7 @@ def pulumi_program():
     # Export the API endpoint URL and bucket name
     pulumi.export("api_endpoint", api.api_endpoint)
     pulumi.export("bucket_name", bucket.id)
-    
+
     # Use apply() to create the example curl command
     example_curl = api.api_endpoint.apply(
         lambda endpoint: f"curl -X POST {endpoint} -H 'Content-Type: application/json' -d '{{\"key\": \"value\"}}'"
@@ -118,4 +118,3 @@ if destroy:
 print("updating stack...")
 up_res = stack.up(on_output=print)
 print(f"update summary: \n{json.dumps(up_res.summary.resource_changes, indent=4)}")
-

@@ -36,7 +36,7 @@ def create_app(settings: Settings = None, debug: bool = False):
         app.mount("/", StaticFiles(directory=str(react_build_dir), html=True), name="static")
     else:
         app.mount("/", StaticFiles(directory=str(STATIC_DIR), html=True), name="static")
-   
+
     # redirect / to /index.html
     @app.get("/")
     async def root():

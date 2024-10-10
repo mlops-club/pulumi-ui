@@ -1,7 +1,6 @@
 import pulumi
 import pulumi_aws as aws
 import pulumi_awsx as awsx
-import json
 from pulumi import AssetArchive, FileArchive
 from pathlib import Path
 
@@ -62,4 +61,3 @@ class LambdaRestApiStack(pulumi.Stack):
         pulumi.export("bucket_name", bucket.id)
         pulumi.export("readme", README_FPATH.read_text())
         pulumi.export("test", "eric")
-
