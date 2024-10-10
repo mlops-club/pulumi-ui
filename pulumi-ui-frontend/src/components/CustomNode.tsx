@@ -1,5 +1,8 @@
 import React from 'react';
 import { Handle, Position } from '@xyflow/react';
+import { Box, IconButton } from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
+import RemoveIcon from '@mui/icons-material/Remove';
 
 interface CustomNodeProps {
     data: {
@@ -16,62 +19,72 @@ const truncateText = (text: string, maxLength: number) => {
 };
 
 const CustomNode: React.FC<CustomNodeProps> = ({ data }) => {
+    const handleToggle = (event: React.MouseEvent) => {
+        event.stopPropagation();
+        data.onToggle();
+    };
+
     return (
-        <div style={{
-            background: '#fff',
-            padding: '4px 6px',
-            borderRadius: '3px',
-            border: '1px solid #ccc',
-            width: '180px',
-            height: '40px',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-        }}>
+        <Box
+            sx={{
+                background: '#fff',
+                padding: '4px 6px',
+                borderRadius: '3px',
+                border: '1px solid #ccc',
+                width: '180px',
+                height: '40px',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                position: 'relative',
+            }}
+        >
             <Handle type="target" position={Position.Left} />
-            <div style={{
-                fontWeight: 'bold',
-                marginBottom: '1px',
-                fontSize: '0.7em',
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis'
-            }}>
+            <Box
+                sx={{
+                    fontWeight: 'bold',
+                    marginBottom: '1px',
+                    fontSize: '0.7em',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis'
+                }}
+            >
                 {truncateText(data.name, 25)}
-            </div>
-            <div style={{
-                fontSize: '0.6em', // Slightly reduced font size
-                color: '#666',
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis'
-            }}>
+            </Box>
+            <Box
+                sx={{
+                    fontSize: '0.6em',
+                    color: '#666',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis'
+                }}
+            >
                 {truncateText(data.type, 25)}
-            </div>
+            </Box>
             <Handle type="source" position={Position.Right} />
             {data.hasChildren && (
-                <div
-                    style={{
+                <IconButton
+                    onClick={handleToggle}
+                    size="small"
+                    sx={{
                         position: 'absolute',
-                        right: '-16px',
+                        right: '-18px',
                         top: '50%',
                         transform: 'translateY(-50%)',
-                        cursor: 'pointer',
-                        fontSize: '16px',
-                        width: '16px',
-                        height: '16px',
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        background: '#f0f0f0',
-                        borderRadius: '50%',
+                        backgroundColor: '#f0f0f0',
+                        width: '18px',
+                        height: '18px',
+                        '&:hover': {
+                            backgroundColor: '#e0e0e0',
+                        },
                     }}
-                    onClick={data.onToggle}
                 >
-                    {data.isExpanded ? '−' : '+'}
-                </div>
+                    {data.isExpanded ? <RemoveIcon sx={{ fontSize: 14 }} /> : <AddIcon sx={{ fontSize: 14 }} />}
+                </IconButton>
             )}
-        </div>
+        </Box>
     );
 };
 

@@ -105,9 +105,9 @@ const StackView: React.FC<StackViewProps> = ({ colorMode }) => {
         }
     };
 
-    const handleBackToResourcesView = () => {
+    const handleBackToStack = () => {
         setSelectedResource(null);
-        navigate(`/projects/${projectName}/stacks/${stackName}/resources?view=${resourceView}`);
+        navigate(`/projects/${projectName}/stacks/${stackName}/resources?view=graph`);
     };
 
     const handleRequestSort = (property: keyof Resource) => {
@@ -208,11 +208,11 @@ const StackView: React.FC<StackViewProps> = ({ colorMode }) => {
                         <Link
                             component="button"
                             variant="body2"
-                            onClick={handleBackToResourcesView}
+                            onClick={handleBackToStack}
                             sx={{ display: 'flex', alignItems: 'center' }}
                         >
                             <ArrowBackIcon sx={{ mr: 1 }} />
-                            Back to {resourceView === 'list' ? 'list' : 'graph'} view
+                            Back to stack
                         </Link>
                     </Box>
                     <ResourceView resource={selectedResource} stack={stack!} />
@@ -252,9 +252,10 @@ const StackView: React.FC<StackViewProps> = ({ colorMode }) => {
                         />
                     ) : (
                         <StackResourcesGraphViewTab
-                            resources={stack?.resources || []}
+                            resources={stack?.resources}
                             onNodeClick={handleResourceClick}
                             colorMode={colorMode}
+                            stackName={stackName || ''}
                         />
                     )}
                 </Box>

@@ -1,98 +1,181 @@
-import React, { useMemo } from 'react';
-import dagre from 'dagre';
-import { ReactFlow, Background, Controls, MiniMap, Node, Edge, Position } from '@xyflow/react';
+import React, { useMemo, useState, useEffect, useCallback } from 'react';
+import {
+    ReactFlow,
+    Background,
+    Controls,
+    MiniMap,
+    Node,
+    Edge,
+    EdgeLabelRenderer,
+    useNodesState,
+    useEdgesState,
+    ReactFlowProvider,
+    useReactFlow,
+} from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { Resource } from '../types';
 import CustomNode from './CustomNode';
+import { ToggleButton, ToggleButtonGroup, Box, Typography, Tooltip } from '@mui/material';
+import { createGraph } from '../graph';
 
 interface StackResourcesGraphViewProps {
-    resources: Resource[];
+    resources: Resource[] | undefined;
     onNodeClick: (resource: Resource) => void;
     colorMode: 'light' | 'dark';
+    stackName: string;
 }
 
-const nodeWidth = 220;
-const nodeHeight = 40;
+type GraphAlgorithm = 'parent-child' | 'dependency';
 
-const StackResourcesGraphView: React.FC<StackResourcesGraphViewProps> = ({ resources, onNodeClick, colorMode }) => {
-    const { nodes, edges } = useMemo(() => {
-        const nodes: Node[] = resources.map((resource) => ({
-            id: resource.urn,
-            type: 'custom',
-            data: {
-                name: resource.urn.split('::').pop() || '',
-                type: resource.type,
-                hasChildren: resources.some((r) => r.parent === resource.urn),
-                isExpanded: true,
-                onToggle: () => { }, // Implement this if needed
-                parent: resource.parent,
-            },
-            position: { x: 0, y: 0 },
-        }));
+const StackResourcesGraphView: React.FC<StackResourcesGraphViewProps> = ({ resources, onNodeClick, colorMode, stackName }) => {
+    const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set(['stack']));
+    const [algorithm, setAlgorithm] = useState<GraphAlgorithm>('parent-child');
+    const [nodes, setNodes, onNodesChange] = useNodesState([]);
+    const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+    const [selectedEdge, setSelectedEdge] = useState<string | null>(null);
+    const { fitView } = useReactFlow();
 
-        const edges: Edge[] = resources
-            .filter((resource) => resource.parent)
-            .map((resource) => ({
-                id: `${resource.parent}-${resource.urn}`,
-                source: resource.parent!,
-                target: resource.urn,
-                type: 'smoothstep',
-            }));
-
-        const dagreGraph = new dagre.graphlib.Graph();
-        dagreGraph.setDefaultEdgeLabel(() => ({}));
-        dagreGraph.setGraph({ rankdir: 'LR', ranksep: 50, nodesep: 10 });
-
-        nodes.forEach((node) => {
-            dagreGraph.setNode(node.id, { width: nodeWidth, height: nodeHeight });
+    const toggleNodeExpansion = useCallback((nodeId: string) => {
+        setExpandedNodes((prev) => {
+            const newSet = new Set(prev);
+            if (newSet.has(nodeId)) {
+                newSet.delete(nodeId);
+            } else {
+                newSet.add(nodeId);
+            }
+            return newSet;
         });
+    }, []);
 
-        edges.forEach((edge) => {
-            dagreGraph.setEdge(edge.source, edge.target);
+    const onLayout = useCallback(() => {
+        if (!resources) return;
+        const { nodes: layoutedNodes, edges: layoutedEdges } = createGraph(resources, stackName, expandedNodes, algorithm, toggleNodeExpansion);
+        setNodes(layoutedNodes);
+        setEdges(layoutedEdges);
+
+        window.requestAnimationFrame(() => {
+            fitView();
         });
+    }, [resources, stackName, expandedNodes, algorithm, setNodes, setEdges, fitView]);
 
-        dagre.layout(dagreGraph);
+    useEffect(() => {
+        onLayout();
+    }, [onLayout, expandedNodes, algorithm]);
 
-        nodes.forEach((node) => {
-            const nodeWithPosition = dagreGraph.node(node.id);
-            node.position = {
-                x: nodeWithPosition.x - nodeWidth / 2,
-                y: nodeWithPosition.y - nodeHeight / 2,
-            };
-            node.targetPosition = Position.Left;
-            node.sourcePosition = Position.Right;
-        });
-
-        return { nodes, edges };
-    }, [resources]);
+    // Initialize all nodes as expanded in parent-child view
+    useEffect(() => {
+        if (resources && algorithm === 'parent-child') {
+            setExpandedNodes(new Set(resources.map(r => r.urn)));
+        }
+    }, [resources, algorithm]);
 
     const nodeTypes = useMemo(() => ({ custom: CustomNode }), []);
 
     const isDarkMode = colorMode === 'dark';
 
+    const onEdgeClick = useCallback((event: React.MouseEvent, edge: Edge) => {
+        setSelectedEdge(edge.id);
+    }, []);
+
+    const getEdgeLabel = useCallback((edge: Edge) => {
+        if (algorithm === 'dependency' && edge.data?.relationships) {
+            return edge.data.relationships.length.toString();
+        }
+        return '';
+    }, [algorithm]);
+
+    if (!resources || resources.length === 0) {
+        return <div>No resources to display</div>;
+    }
+
     return (
-        <ReactFlow
-            nodes={nodes}
-            edges={edges}
-            nodeTypes={nodeTypes}
-            fitView
-            minZoom={0.1}
-            maxZoom={1.5}
-            attributionPosition="bottom-left"
-            onNodeClick={(event, node) => {
-                const resource = resources.find(r => r.urn === node.id);
-                if (resource) {
-                    onNodeClick(resource);
-                }
-            }}
-            proOptions={{ hideAttribution: true }}
-            className={isDarkMode ? 'react-flow__container-dark' : ''}
-        >
-            <Background color={isDarkMode ? '#999' : '#aaa'} gap={16} />
-            <Controls />
-            <MiniMap />
-        </ReactFlow>
+        <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+            <Box sx={{ mb: 2 }}>
+                <ToggleButtonGroup
+                    value={algorithm}
+                    exclusive
+                    onChange={(_, newAlgorithm) => newAlgorithm && setAlgorithm(newAlgorithm)}
+                    aria-label="graph algorithm"
+                >
+                    <ToggleButton value="parent-child" aria-label="parent-child view">
+                        <Typography>Parent-Child</Typography>
+                    </ToggleButton>
+                    <ToggleButton value="dependency" aria-label="dependency view">
+                        <Typography>Dependency (Alpha)</Typography>
+                    </ToggleButton>
+                </ToggleButtonGroup>
+            </Box>
+            <Box sx={{ flexGrow: 1 }}>
+                <ReactFlow
+                    nodes={nodes}
+                    edges={edges}
+                    onNodesChange={onNodesChange}
+                    onEdgesChange={onEdgesChange}
+                    nodeTypes={nodeTypes}
+                    fitView
+                    minZoom={0.1}
+                    maxZoom={1.5}
+                    attributionPosition="bottom-left"
+                    onNodeClick={(event, node) => {
+                        const resource = resources?.find(r => r.urn === node.id);
+                        if (resource) {
+                            onNodeClick(resource);
+                        }
+                    }}
+                    onEdgeClick={onEdgeClick}
+                    edgeLabels={getEdgeLabel}
+                    proOptions={{ hideAttribution: true }}
+                    className={isDarkMode ? 'react-flow__container-dark' : ''}
+                >
+                    <Background color={isDarkMode ? '#999' : '#aaa'} gap={16} />
+                    <Controls />
+                    <MiniMap />
+                    <EdgeLabelRenderer>
+                        {edges.map((edge) => (
+                            <Tooltip
+                                key={edge.id}
+                                title={
+                                    <div>
+                                        {edge.data?.relationships.map((rel, index) => (
+                                            <div key={index}>
+                                                {`${edge.source.split('::').pop()}.${rel.input} <-- ${edge.target.split('::').pop()}.${rel.output}: ${rel.value}`}
+                                            </div>
+                                        ))}
+                                    </div>
+                                }
+                                placement="top"
+                                open={selectedEdge === edge.id}
+                                onClose={() => setSelectedEdge(null)}
+                            >
+                                <div
+                                    style={{
+                                        position: 'absolute',
+                                        transform: `translate(-50%, -50%) translate(${edge.sourceX}px,${edge.sourceY}px)`,
+                                        fontSize: 12,
+                                        pointerEvents: 'all',
+                                    }}
+                                    onClick={(event) => {
+                                        event.stopPropagation();
+                                        setSelectedEdge(edge.id);
+                                    }}
+                                >
+                                    {getEdgeLabel(edge)}
+                                </div>
+                            </Tooltip>
+                        ))}
+                    </EdgeLabelRenderer>
+                </ReactFlow>
+            </Box>
+        </Box>
     );
 };
 
-export default StackResourcesGraphView;
+const StackResourcesGraphViewWrapper: React.FC<StackResourcesGraphViewProps> = (props) => {
+    return (
+        <ReactFlowProvider>
+            <StackResourcesGraphView {...props} />
+        </ReactFlowProvider>
+    );
+};
+
+export default StackResourcesGraphViewWrapper;

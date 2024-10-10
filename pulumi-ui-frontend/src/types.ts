@@ -11,9 +11,12 @@ export interface Project {
 export interface Resource {
   urn: string;
   type: string;
+  inputs?: Record<string, any>;
   outputs?: Record<string, any>;
   children?: Resource[];
   parent?: string;  // Add this line
+  dependencies?: string[];  // Add this line
+  propertyDependencies?: string[];  // Add this line
   // ... other resource properties
 }
 

@@ -15,6 +15,9 @@ const WelcomePage: React.FC = () => {
                 padding: 3,
             }}
         >
+            <Typography variant="h4" gutterBottom>
+                Welcome to
+            </Typography>
             <img src="/logo.png" alt="Pulumi UI Logo" style={{ maxWidth: '300px', marginBottom: '20px' }} />
             <Typography variant="subtitle1">
                 by{' '}
