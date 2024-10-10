@@ -154,8 +154,18 @@ This will build both the frontend and backend, resulting in a fully built applic
 
 ## TODOs
 
+- [ ] Tests
+  - [ ] Create a set of sample JSON files representing stacks for testing
+  - [ ] Use something like `selenium` or `pylenium` to write UI tests (or `playwright`)
+
+- SAML and SSO
+  - [ ] SAML: Do a POC following [this guide](https://blog.purple-technology.com/how-to-build-serverless-app-with-saml-auth-via-aws-iam-identity-center/) to determine the work involved in supporting SAML.
+  - [ ] SAML local dev environment: try to get a docker-compose with something thate emulates a SAML IdP, e.g. KeyCloak
+  - [ ] Try FastAPI SSO with a provider, e.g. local emulated IdP in docker, or maybe AWS Cognito and localstack, etc.
+
+Stack View
 - [ ] Tab view
-   - [ ] `Readme` -> Render the `readme` output of the stack as html
+   - [x] `Readme` -> Render the `readme` output of the stack as html
    - [ ] Overview -> Should have the following sections
      - [ ] `View JSON` button -> Opens a model with the stack's syntax-highlighted JSON
      - [ ] Configuration - table view. Config keys and values
@@ -179,10 +189,11 @@ This will build both the frontend and backend, resulting in a fully built applic
              - [ ] Outputs - 2 cols. Key/value for each output. Shows "No Outputs" and an icon if there are none.
              - [ ] Children - Table of same shape as the resources table, but limited to the children. 
          - [ ] **2. Graph View** - Shows the React flow component.
-            - [ ] each node should show the resource urn, abbreviated if longer than 25 characters
+            - [x] each node should show the resource urn, abbreviated if longer than 25 characters
             - [ ] When a resource node clicked, takes you to a resource view
-            - [ ] To the right of the resource node, a small icon that can collapse/expand the node, showing it's children
-            - [ ] Child resources display to the right and vertically stacked
-            - 
-      
+            - [x] To the right of the resource node, a small icon that can collapse/expand the node, showing it's children
+            - [x] Child resources display to the right and vertically stacked
+            - [ ] The expand/collapse action should be animated, like in Pulumi Cloud
+            - [ ] Icon System: Each graph node should have an icon
+
    

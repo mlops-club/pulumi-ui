@@ -11,6 +11,8 @@ export interface Project {
 export interface Resource {
   urn: string;
   type: string;
+  outputs?: Record<string, any>;
+  children?: Resource[];
   parent?: string;  // Add this line
   // ... other resource properties
 }
@@ -19,4 +21,5 @@ export interface Stack {
   name: string;
   resources: Resource[];
   outputs: Record<string, any>;
+  version?: string;
 }

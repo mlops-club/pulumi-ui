@@ -144,6 +144,7 @@ function AppContent({
           <Route path="/" element={<WelcomePage />} />
           <Route path="/projects/:projectName/stacks/:stackName" element={<Navigate to="overview" replace />} />
           <Route path="/projects/:projectName/stacks/:stackName/:tab" element={<StackView />} />
+          <Route path="/projects/:projectName/stacks/:stackName/resources/:resourceName" element={<StackView />} />
         </Routes>
       </Box>
     </Box>

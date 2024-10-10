@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useCallback, ErrorInfo } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import {
     Box,
@@ -7,17 +7,9 @@ import {
     ToggleButton,
     ToggleButtonGroup,
     Typography,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
-    TableSortLabel,
-    Paper,
     CircularProgress,
     Button,
-    Link
+    Link,
 } from '@mui/material';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
@@ -27,36 +19,16 @@ import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import HomeIcon from '@mui/icons-material/Home';
 import DescriptionIcon from '@mui/icons-material/Description';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-import ResourceGraph from './ResourceGraph';
+import StackResourcesGraphView from './StackResourcesGraphView';
+import StackResourcesListView from './StackResourcesListView';
+import ResourceView from './ResourceView';
 
 type Order = 'asc' | 'desc';
 type TabValue = 'overview' | 'readme' | 'resources';
 
-class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean }> {
-    constructor(props: { children: React.ReactNode }) {
-        super(props);
-        this.state = { hasError: false };
-    }
-
-    static getDerivedStateFromError(error: Error) {
-        return { hasError: true };
-    }
-
-    componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-        console.error("Caught an error:", error, errorInfo);
-    }
-
-    render() {
-        if (this.state.hasError) {
-            return <h1>Something went wrong with the graph view.</h1>;
-        }
-
-        return this.props.children;
-    }
-}
-
 const StackView: React.FC = () => {
-    const { projectName, stackName, tab } = useParams<{ projectName: string; stackName: string; tab: string }>();
+    const { projectName, stackName, tab, resourceName } = useParams<{ projectName?: string; stackName?: string; tab?: string; resourceName?: string }>();
+
     const navigate = useNavigate();
     const location = useLocation();
     const [searchParams] = useSearchParams();
@@ -67,6 +39,7 @@ const StackView: React.FC = () => {
     const [resourceView, setResourceView] = useState<'list' | 'graph'>('list');
     const [order, setOrder] = useState<Order>('asc');
     const [orderBy, setOrderBy] = useState<keyof Resource>('type');
+    const [selectedResource, setSelectedResource] = useState<Resource | null>(null);
 
     const fetchStack = useCallback(async () => {
         if (!projectName || !stackName) return;
@@ -95,16 +68,26 @@ const StackView: React.FC = () => {
     }, [fetchStack]);
 
     useEffect(() => {
+        if (resourceName && stack) {
+            const resource = stack.resources.find(r => r.urn.split('::').pop() === resourceName || r.urn === resourceName);
+            setSelectedResource(resource || null);
+            setTabValue('resources');
+        } else {
+            setSelectedResource(null);
+        }
+    }, [resourceName, stack]);
+
+    useEffect(() => {
         if (tab && ['overview', 'readme', 'resources'].includes(tab)) {
             setTabValue(tab as TabValue);
             if (tab === 'resources') {
                 const graphView = searchParams.get('graph_view');
                 setResourceView(graphView === 'true' ? 'graph' : 'list');
             }
-        } else {
+        } else if (!resourceName) {
             navigate(`/projects/${projectName}/stacks/${stackName}/overview`, { replace: true });
         }
-    }, [tab, projectName, stackName, navigate, searchParams]);
+    }, [tab, projectName, stackName, navigate, searchParams, resourceName]);
 
     const handleTabChange = useCallback((event: React.SyntheticEvent, newValue: TabValue) => {
         const graphView = searchParams.get('graph_view');
@@ -140,11 +123,10 @@ const StackView: React.FC = () => {
     const sortedResources = useMemo(() => {
         if (!stack) return [];
         const comparator = (a: Resource, b: Resource) => {
-            if (b[orderBy] < a[orderBy]) {
-                return order === 'asc' ? 1 : -1;
-            }
-            if (b[orderBy] > a[orderBy]) {
-                return order === 'asc' ? -1 : 1;
+            const aValue = a[orderBy];
+            const bValue = b[orderBy];
+            if (typeof aValue === 'string' && typeof bValue === 'string') {
+                return order === 'asc' ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
             }
             return 0;
         };
@@ -217,122 +199,115 @@ const StackView: React.FC = () => {
         }
     };
 
-    if (loading) {
+    const renderResourcesTab = () => {
+        if (resourceName && selectedResource) {
+            return <ResourceView resource={selectedResource} stack={stack!} />;
+        }
+
+        if (resourceView === 'list') {
+            return (
+                <StackResourcesListView
+                    resources={sortedResources}
+                    orderBy={orderBy}
+                    order={order}
+                    onRequestSort={handleRequestSort}
+                    projectName={projectName}
+                    stackName={stackName}
+                />
+            );
+        } else {
+            return (
+                <Box sx={{ height: 'calc(100% - 40px)' }}>
+                    <StackResourcesGraphView
+                        resources={stack?.resources || []}
+                        onNodeClick={(resource) => navigate(`/projects/${projectName}/stacks/${stackName}/resources/${encodeURIComponent(resource.urn.split('::').pop() || '')}`)}
+                    />
+                </Box>
+            );
+        }
+    };
+
+    const renderContent = () => {
+        if (loading) {
+            return (
+                <Box display="flex" justifyContent="center" alignItems="center" height="100%">
+                    <CircularProgress />
+                </Box>
+            );
+        }
+
+        if (error) {
+            return (
+                <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" height="100%">
+                    <Typography variant="h4" gutterBottom>
+                        404 - Stack Not Found
+                    </Typography>
+                    <Typography variant="body1" gutterBottom>
+                        {error}
+                    </Typography>
+                    <Button
+                        variant="contained"
+                        startIcon={<HomeIcon />}
+                        onClick={() => navigate('/')}
+                        sx={{ mt: 2 }}
+                    >
+                        Back to Home
+                    </Button>
+                </Box>
+            );
+        }
+
+        if (!stack) {
+            return <Typography variant="h4">Stack not found</Typography>;
+        }
+
         return (
-            <Box display="flex" justifyContent="center" alignItems="center" height="100%">
-                <CircularProgress />
-            </Box>
-        );
-    }
-
-    if (error) {
-        return (
-            <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" height="100%">
-                <Typography variant="h4" gutterBottom>
-                    404 - Stack Not Found
-                </Typography>
-                <Typography variant="body1" gutterBottom>
-                    {error}
-                </Typography>
-                <Button
-                    variant="contained"
-                    startIcon={<HomeIcon />}
-                    onClick={() => navigate('/')}
-                    sx={{ mt: 2 }}
-                >
-                    Back to Home
-                </Button>
-            </Box>
-        );
-    }
-
-    if (!stack) {
-        return <Typography variant="h4">Stack not found</Typography>;
-    }
-
-    return (
-        <Box sx={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
-            <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                <Tabs value={tabValue} onChange={handleTabChange}>
-                    <Tab label="Overview" value="overview" disableRipple />
-                    <Tab label="Readme" value="readme" disableRipple />
-                    <Tab label="Resources" value="resources" disableRipple />
-                </Tabs>
-            </Box>
-            <Box sx={{ flexGrow: 1, overflow: 'hidden' }}>
-                {tabValue === 'overview' && (
-                    <Box sx={{ height: '100%', overflowY: 'auto', p: 3 }}>
-                        <h2>Overview</h2>
-                        {/* Add overview content here */}
-                    </Box>
-                )}
-                {tabValue === 'readme' && renderReadme()}
-                {tabValue === 'resources' && (
-                    <Box sx={{ height: '100%', overflowY: 'auto' }}>
-                        <Box sx={{ mb: 2 }}>
-                            <ToggleButtonGroup
-                                value={resourceView}
-                                exclusive
-                                onChange={handleResourceViewChange}
-                                aria-label="resource view"
-                            >
-                                <ToggleButton value="list" aria-label="list view" disableRipple>
-                                    <ListIcon sx={{ mr: 1 }} />
-                                    <Typography>List View</Typography>
-                                </ToggleButton>
-                                <ToggleButton value="graph" aria-label="graph view" disableRipple>
-                                    <AccountTreeIcon sx={{ mr: 1 }} />
-                                    <Typography>Graph View</Typography>
-                                </ToggleButton>
-                            </ToggleButtonGroup>
+            <Box sx={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
+                <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                    <Tabs value={tabValue} onChange={handleTabChange}>
+                        <Tab label="Overview" value="overview" disableRipple />
+                        <Tab label="Readme" value="readme" disableRipple />
+                        <Tab label="Resources" value="resources" disableRipple />
+                    </Tabs>
+                </Box>
+                <Box sx={{ flexGrow: 1, overflow: 'hidden' }}>
+                    {tabValue === 'overview' && (
+                        <Box sx={{ height: '100%', overflowY: 'auto', p: 3 }}>
+                            <h2>Overview</h2>
+                            {/* Add overview content here */}
                         </Box>
-                        {resourceView === 'list' ? (
-                            <TableContainer component={Paper}>
-                                <Table>
-                                    <TableHead>
-                                        <TableRow>
-                                            <TableCell>
-                                                <TableSortLabel
-                                                    active={orderBy === 'type'}
-                                                    direction={orderBy === 'type' ? order : 'asc'}
-                                                    onClick={() => handleRequestSort('type')}
-                                                >
-                                                    Type
-                                                </TableSortLabel>
-                                            </TableCell>
-                                            <TableCell>
-                                                <TableSortLabel
-                                                    active={orderBy === 'urn'}
-                                                    direction={orderBy === 'urn' ? order : 'asc'}
-                                                    onClick={() => handleRequestSort('urn')}
-                                                >
-                                                    Name
-                                                </TableSortLabel>
-                                            </TableCell>
-                                        </TableRow>
-                                    </TableHead>
-                                    <TableBody>
-                                        {sortedResources.map((resource) => (
-                                            <TableRow key={resource.urn}>
-                                                <TableCell>{resource.type}</TableCell>
-                                                <TableCell>{resource.urn.split('::').pop()}</TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                            </TableContainer>
-                        ) : (
-                            <ErrorBoundary>
-                                <Box sx={{ height: 'calc(100% - 40px)' }}>
-                                    <ResourceGraph resources={stack.resources} />
+                    )}
+                    {tabValue === 'readme' && renderReadme()}
+                    {tabValue === 'resources' && (
+                        <Box sx={{ height: '100%', overflowY: 'auto' }}>
+                            {!resourceName && (
+                                <Box sx={{ mb: 2 }}>
+                                    <ToggleButtonGroup
+                                        value={resourceView}
+                                        exclusive
+                                        onChange={handleResourceViewChange}
+                                        aria-label="resource view"
+                                    >
+                                        <ToggleButton value="list" aria-label="list view" disableRipple>
+                                            <ListIcon sx={{ mr: 1 }} />
+                                            <Typography>List View</Typography>
+                                        </ToggleButton>
+                                        <ToggleButton value="graph" aria-label="graph view" disableRipple>
+                                            <AccountTreeIcon sx={{ mr: 1 }} />
+                                            <Typography>Graph View</Typography>
+                                        </ToggleButton>
+                                    </ToggleButtonGroup>
                                 </Box>
-                            </ErrorBoundary>
-                        )}
-                    </Box>
-                )}
+                            )}
+                            {renderResourcesTab()}
+                        </Box>
+                    )}
+                </Box>
             </Box>
-        </Box>
-    );
+        );
+    };
+
+    return renderContent();
 };
 
 export default StackView;
