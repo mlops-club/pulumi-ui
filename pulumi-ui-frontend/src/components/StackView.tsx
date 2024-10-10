@@ -144,6 +144,8 @@ const StackView: React.FC<StackViewProps> = ({ colorMode }) => {
                 height: 'calc(100% - 48px)', // Subtract the height of the tabs
                 overflowY: 'auto',
                 p: 2,
+                display: 'flex',
+                flexDirection: 'column',
             }}>
                 {stack && stack.outputs && stack.outputs.readme ? (
                     <Box sx={{
@@ -166,8 +168,12 @@ const StackView: React.FC<StackViewProps> = ({ colorMode }) => {
                     </Box>
                 ) : (
                     <Box sx={{
+                        flexGrow: 1,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'center',
+                        alignItems: 'center',
                         textAlign: 'center',
-                        p: 3,
                     }}>
                         <Typography variant="h6" gutterBottom>
                             <Link
@@ -223,11 +229,11 @@ const StackView: React.FC<StackViewProps> = ({ colorMode }) => {
                         onChange={handleResourceViewChange}
                         aria-label="resource view"
                     >
-                        <ToggleButton value="list" aria-label="list view">
+                        <ToggleButton value="list" aria-label="list view" disableRipple>
                             <ListIcon sx={{ mr: 1 }} />
                             <Typography>List View</Typography>
                         </ToggleButton>
-                        <ToggleButton value="graph" aria-label="graph view">
+                        <ToggleButton value="graph" aria-label="graph view" disableRipple>
                             <AccountTreeIcon sx={{ mr: 1 }} />
                             <Typography>Graph View</Typography>
                         </ToggleButton>
