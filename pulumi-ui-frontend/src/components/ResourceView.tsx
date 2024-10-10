@@ -22,9 +22,6 @@ interface ResourceViewProps {
 }
 
 const ResourceView: React.FC<ResourceViewProps> = ({ resource, stack }) => {
-    console.log('ResourceView rendering');
-    console.log('Resource:', resource);
-    console.log('Stack:', stack);
 
     const { projectName, stackName } = useParams<{ projectName?: string; stackName?: string }>();
 
@@ -73,7 +70,6 @@ const ResourceView: React.FC<ResourceViewProps> = ({ resource, stack }) => {
         if (dependency.type === 'pulumi:pulumi:Stack') {
             const parsed = parseStackUrn(dependency.urn);
             if (parsed) {
-                console.log('Parsed stack URN:', parsed);
                 return (
                     <Link component={RouterLink} to={`/projects/${parsed.projectName}/stacks/${parsed.stackName}/overview`}>
                         {dependency.type}

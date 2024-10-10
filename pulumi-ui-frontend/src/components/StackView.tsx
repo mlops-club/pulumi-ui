@@ -10,6 +10,17 @@ import {
     CircularProgress,
     Button,
     Link,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    Paper,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
 } from '@mui/material';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
@@ -19,9 +30,10 @@ import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import HomeIcon from '@mui/icons-material/Home';
 import DescriptionIcon from '@mui/icons-material/Description';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-import StackResourcesGraphView from './StackResourcesGraphView';
-import StackResourcesListView from './StackResourcesListView';
+import StackResourcesGraphViewTab from './StackResourcesGraphViewTab';
+import StackResourcesListViewTab from './StackResourcesListViewTab';
 import ResourceView from './ResourceView';
+import StackOverviewTab from './StackOverviewTab';
 
 type Order = 'asc' | 'desc';
 type TabValue = 'overview' | 'readme' | 'resources';
@@ -40,6 +52,7 @@ const StackView: React.FC = () => {
     const [order, setOrder] = useState<Order>('asc');
     const [orderBy, setOrderBy] = useState<keyof Resource>('type');
     const [selectedResource, setSelectedResource] = useState<Resource | null>(null);
+    const [jsonDialogOpen, setJsonDialogOpen] = useState(false);
 
     const fetchStack = useCallback(async () => {
         if (!projectName || !stackName) return;
@@ -206,7 +219,7 @@ const StackView: React.FC = () => {
 
         if (resourceView === 'list') {
             return (
-                <StackResourcesListView
+                <StackResourcesListViewTab
                     resources={sortedResources}
                     orderBy={orderBy}
                     order={order}
@@ -218,9 +231,9 @@ const StackView: React.FC = () => {
         } else {
             return (
                 <Box sx={{ height: 'calc(100% - 40px)' }}>
-                    <StackResourcesGraphView
+                    <StackResourcesGraphViewTab
                         resources={stack?.resources || []}
-                        onNodeClick={(resource) => navigate(`/projects/${projectName}/stacks/${stackName}/resources/${encodeURIComponent(resource.urn.split('::').pop() || '')}`)}
+                        onNodeClick={(resource: Resource) => navigate(`/projects/${projectName}/stacks/${stackName}/resources/${encodeURIComponent(resource.urn.split('::').pop() || '')}`)}
                     />
                 </Box>
             );
@@ -271,12 +284,7 @@ const StackView: React.FC = () => {
                     </Tabs>
                 </Box>
                 <Box sx={{ flexGrow: 1, overflow: 'hidden' }}>
-                    {tabValue === 'overview' && (
-                        <Box sx={{ height: '100%', overflowY: 'auto', p: 3 }}>
-                            <h2>Overview</h2>
-                            {/* Add overview content here */}
-                        </Box>
-                    )}
+                    {tabValue === 'overview' && <StackOverviewTab stack={stack} />}
                     {tabValue === 'readme' && renderReadme()}
                     {tabValue === 'resources' && (
                         <Box sx={{ height: '100%', overflowY: 'auto' }}>

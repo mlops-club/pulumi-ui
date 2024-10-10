@@ -15,12 +15,14 @@
     "@mui/icons-material": "^6.1.1",
     "@mui/material": "^6.1.1",
     "@types/dagre": "^0.7.52",
+    "@types/react-syntax-highlighter": "^15.5.13",
     "@xyflow/react": "^12.3.1",
     "dagre": "^0.8.5",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-markdown": "^9.0.1",
     "react-router-dom": "^6.26.2",
+    "react-syntax-highlighter": "^15.5.0",
     "rehype-raw": "^7.0.0"
   },
   "devDependencies": {

@@ -178,19 +178,19 @@ Stack View
          - [ ] **1. Table View,**
            - 2 columns
              - [ ] icon (show svg icon of resource, or fall back to provider if not available, or fall back to blank)
-             - [ ] Type,
-             - [ ] Name
-           - [ ] Clicking a row or a node in the graph should show a "resource view"
-             - [ ] Overview table
+             - [x] Type,
+             - [x] Name
+           - [x] Clicking a row or a node in the graph should show a "resource view"
+             - [x] Overview table
                - There will be exactly 3 rows and 2 columns. The columns contain the key/value of
                  - Type
                  - URN
                  - Stack Version
-             - [ ] Outputs - 2 cols. Key/value for each output. Shows "No Outputs" and an icon if there are none.
-             - [ ] Children - Table of same shape as the resources table, but limited to the children.
+             - [x] Outputs - 2 cols. Key/value for each output. Shows "No Outputs" and an icon if there are none.
+             - [x] Children - Table of same shape as the resources table, but limited to the children.
          - [ ] **2. Graph View** - Shows the React flow component.
             - [x] each node should show the resource urn, abbreviated if longer than 25 characters
-            - [ ] When a resource node clicked, takes you to a resource view
+            - [x] When a resource node clicked, takes you to a resource view
             - [x] To the right of the resource node, a small icon that can collapse/expand the node, showing it's children
             - [x] Child resources display to the right and vertically stacked
             - [ ] The expand/collapse action should be animated, like in Pulumi Cloud

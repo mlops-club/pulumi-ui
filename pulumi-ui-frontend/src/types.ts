@@ -22,4 +22,5 @@ export interface Stack {
   resources: Resource[];
   outputs: Record<string, any>;
   version?: string;
+  config?: Record<string, string>; // Add this line for configuration
 }

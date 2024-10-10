@@ -29,7 +29,6 @@ const mainDrawerWidthClosed = 56;
 
 const StackExplorerBar: React.FC<StackExplorerBarProps> = ({
     projects,
-    selectedStack,
     projectsDrawerOpen,
     mainDrawerOpen,
     expandedProjects,
@@ -38,7 +37,6 @@ const StackExplorerBar: React.FC<StackExplorerBarProps> = ({
 }) => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { projectName: currentProjectName, stackName: currentStackName } = useParams<{ projectName?: string; stackName?: string }>();
 
     const handleStackClick = (projectName: string, stackName: string) => {
         fetchStack(projectName, stackName);
