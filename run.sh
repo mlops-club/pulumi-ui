@@ -33,8 +33,7 @@ function install {
 }
 
 function dev:backend {
-    # (cd "$BACKEND_DIR" && python -m pulumi_ui.cli up --state-uri "file://$PLAYGROUND_DIR/.pulumi-state" --debug)
-    (cd "$BACKEND_DIR" && python -m pulumi_ui.cli up --state-uri "file://~" --debug)
+    (cd "$BACKEND_DIR" && uv run --with-editable ./ -- pulumi-ui up --state-uri file://~ --debug)
 }
 
 function dev:frontend {
